@@ -17,8 +17,8 @@
 
 ;; :NOTE Currently unused/unimplemented.
 ;; (defgeneric uuid-print-byte-array (uuid &key stream)
-;;   (:documentation 
-;;    #.(format nil 
+;;   (:documentation
+;;    #.(format nil
 ;;  "Print the byte-array representation of UUID in a format suitable to its class to STREAM.~%~@
 ;; UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
 ;; STREAM is an output-stream.~%~@
@@ -175,7 +175,7 @@ In long-form this number is:~%
   ;; b/c there should only be one null-id!
   ((%uuid_null :initform t))
   (:documentation
-   #.(format nil 
+   #.(format nil
              "Like instances of `unicly:unique-universal-identifier' but with all slots zeroed.~%~@
 There should only ever be one instance of this class and it should be the value
 of the special variable `unicly::*uuid-null-uuid*'.~%~@
@@ -286,15 +286,15 @@ Instance of this class return T for both `unicly:uuid-eql' and
     ;; nil)
     ;;
     (unique-universal-identifier-null-p uuid-b))
-    
+
   (:method ((uuid-a unique-universal-identifier-null) (uuid-b (eql *uuid-null-uuid*)))
     ;; (values nil "unique-universal-identifier-null (eql *uuid-null-uuid*)"))
     ;;
-    ;; nil)  
+    ;; nil)
     ;;
     (unique-universal-identifier-null-p uuid-a))
-  
-  (:method ((uuid-a unique-universal-identifier-null) (uuid-b unique-universal-identifier-null))    
+
+  (:method ((uuid-a unique-universal-identifier-null) (uuid-b unique-universal-identifier-null))
     ;; (values nil "unique-universal-identifier-null unique-universal-identifier-null"))
     ;;
     ;; nil)
@@ -400,7 +400,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;;   ;; Populate UUID bit-vector/byte-array cache after instance initialization.
 ;;   (setf (slot-value unique-universal-identifier '%uuid_byte-array)
 ;;         (uuid-get-namespace-bytes unique-universal-identifier))
-;;   (setf (slot-value unique-universal-identifier '%uuid_bit-vector) 
+;;   (setf (slot-value unique-universal-identifier '%uuid_bit-vector)
 ;;         (uuid-to-bit-vector unique-universal-identifier)))
 ;;
 ;;; ==============================
@@ -415,7 +415,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
            (optimize speed))
   (with-slots ((utl   %uuid_time-low)
                (utm   %uuid_time-mid)
-               (uthav %uuid_time-high-and-version)  
+               (uthav %uuid_time-high-and-version)
                (ucsar %uuid_clock-seq-and-reserved)
                (ucsl  %uuid_clock-seq-low)
                (un    %uuid_node))
@@ -439,16 +439,16 @@ Instance of this class return T for both `unicly:uuid-eql' and
                  :datum (slot-value verify-uuid chk-bnd)
                  :expected-type chk-type)
        finally (return t))))
-      
+
 ;; :NOTE Following is likely a violation of the spec as we are printing ID
 ;; without consideration to a complete conformant implementation of `cl:print-object'
-;; Specifically w/r/t to the printer control variables: 
+;; Specifically w/r/t to the printer control variables:
 ;;  `*print-readably*', `*print-escape*', `*print-pretty*', `*print-level'
 ;;  `*print-base*', `*print-radix*',  `*print-case*', `*print-array*'
-;; 
+;;
 ;; ,----
 ;; | Methods on 'print-object' are responsible for implementing their part
-;; | of the semantics of the printer control variables, 
+;; | of the semantics of the printer control variables,
 ;; |   {... discussion of printer variables elided ...}
 ;; | If these rules are not obeyed, the results are undefined.
 ;; |
@@ -456,7 +456,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;;
 ;; According to the spec *print-level* and *print-length* do not need to be
 ;; implemented here b/c:
-;; 
+;;
 ;; ,----
 ;; | '*print-level*' and '*print-length*' affect the printing of any
 ;; |  object printed with a list-like syntax.  They do not affect the
@@ -466,11 +466,11 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;; *print-case* is relevant to symbols and we explicitly downcase the chars on output
 ;; *print-length* *print-level* not relevant strings/bit-vectors
 ;; *print-array* not applicable for string-output
-;; 
+;;
 ;; *print-readably* ??? This isnt particulularly readable:
 ;; (let ((*print-readably* t))
 ;;   (print-object (make-v4-uuid) t))
-;; 
+;;
 (defmethod print-object ((id unique-universal-identifier) stream)
   ;; (find-method #'print-object nil '(unique-universal-identifier t))
   (declare (type STREAM-OR-BOOLEAN-OR-STRING-WITH-FILL-POINTER stream))
@@ -494,8 +494,8 @@ Instance of this class return T for both `unicly:uuid-eql' and
     ;; | lower case characters and are case insensitive on input.
     ;; `----
     ;; IOW, case is significant on output.
-    (format stream "~(~8,'0X-~4,'0X-~4,'0X-~2,'0X~2,'0X-~12,'0X~)" 
-            %uuid_time-low %uuid_time-mid %uuid_time-high-and-version 
+    (format stream "~(~8,'0X-~4,'0X-~4,'0X-~2,'0X~2,'0X-~12,'0X~)"
+            %uuid_time-low %uuid_time-mid %uuid_time-high-and-version
             %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)))
 
 (defmethod uuid-print-bytes (stream (uuid unique-universal-identifier))
@@ -513,7 +513,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
              (type uuid-ub48 %uuid_node))
     ;; :NOTE RFC4122 Section 3. "Namespace Registration Template"
     ;; Case is significant on output.
-    (format stream "~(~8,'0X~4,'0X~4,'0X~2,'0X~2,'0X~12,'0X~)" 
+    (format stream "~(~8,'0X~4,'0X~4,'0X~2,'0X~2,'0X~12,'0X~)"
             %uuid_time-low %uuid_time-mid %uuid_time-high-and-version
             %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)))
 
@@ -531,7 +531,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
       (uuid-print-bytes os uuid))
     (if (or (eq string-or-char-type 'base-char)
             (eq string-or-char-type 'character))
-        (if upcase 
+        (if upcase
             (if (eq string-or-char-type 'base-char)
                 (coerce (nstring-upcase fp-strm :start 0 :end 32) 'simple-base-string)
                 (coerce (nstring-upcase fp-strm :start 0 :end 32) 'simple-string))
@@ -556,16 +556,16 @@ Instance of this class return T for both `unicly:uuid-eql' and
                      (make-array 32 :element-type string-or-char-type :fill-pointer 0))))
     (declare (string-with-fill-pointer fp-strm)
              (dynamic-extent fp-strm))
-    (format fp-strm 
-            (ironclad:byte-array-to-hex-string uuid 
-                                               :start 0  
-                                               :end 16 
+    (format fp-strm
+            (ironclad:byte-array-to-hex-string uuid
+                                               :start 0
+                                               :end 16
                                                :element-type (if (stringp string-or-char-type)
                                                                  (array-element-type string-or-char-type)
                                                                  string-or-char-type)))
     (if (or (eq string-or-char-type 'base-char)
             (eq string-or-char-type 'character))
-        (if upcase 
+        (if upcase
             (if (eq string-or-char-type 'base-char)
                 (coerce (nstring-upcase fp-strm :start 0 :end 32) 'simple-base-string)
                 (coerce (nstring-upcase fp-strm :start 0 :end 32) 'simple-string))
@@ -581,9 +581,9 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;; :NOTE SBCL allows speciaclizing simple-bit-vector
 (defmethod uuid-print-bit-vector (#-sbcl (uuid bit-vector) #+sbcl (uuid simple-bit-vector) &key stream)
   ;; #-:sbcl (find-method (fdefinition 'uuid-print-bit-vector) nil '(simple-bit-vector t))
-  ;; #+:sbcl (find-method (fdefinition 'uuid-print-bit-vector) nil '(simple-bit-vector t))                                  
-  (declare (uuid-bit-vector-128 uuid)
-           (optimize (speed 3)))
+  ;; #+:sbcl (find-method (fdefinition 'uuid-print-bit-vector) nil '(simple-bit-vector t))
+           (declare (uuid-bit-vector-128 uuid)
+                    (optimize (speed 3)))
   ;; #-sbcl (etypecase bv2 (uuid-bit-vector-128 t))
   (uuid-bit-vector-128-check-type uuid)
   (with-standard-io-syntax (write uuid :stream stream)))
@@ -645,7 +645,7 @@ Instance of this class return T for both `unicly:uuid-eql' and
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
-;; show-trailing-whitespace: t
+;; show-trailing-whitespace: nil
 ;; mode: lisp-interaction
 ;; package: unicly
 ;; End:
