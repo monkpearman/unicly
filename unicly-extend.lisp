@@ -55,6 +55,9 @@
 ;;
 ;; :USAGE
 ;;
+<<<<<<< HEAD
+>>>>>>> development
+=======
 >>>>>>> development
 ;; (defclass indexable-uuid (unicly:unique-universal-identifier)
 ;;  ((bit-vector 
@@ -63,7 +66,11 @@
 ;;    :reader integer-128-of-uuid)))
 ;;
 <<<<<<< HEAD
+<<<<<<< HEAD
 ;; (unicly::def-make-uuid-extend-class-fun indexed indexable-uuid)
+=======
+;; (def-make-uuid-extend-class-fun indexed indexable-uuid)
+>>>>>>> development
 =======
 ;; (def-make-uuid-extend-class-fun indexed indexable-uuid)
 >>>>>>> development
@@ -130,6 +137,9 @@
 ;; (make-v5-uuid-indexable *uuid-namespace-dns* "bubba")
 ;; (make-v3-uuid-indexable *uuid-namespace-dns* "bubba")
 ;; (make-v4-uuid-indexable)
+<<<<<<< HEAD
+>>>>>>> development
+=======
 >>>>>>> development
 ;;
 ;;; ==============================
@@ -158,6 +168,9 @@
                   (subtypep 'uuid-indexable-v5 'unique-universal-identifier)))
     (error "Arg SUBCLASS not `cl:subtypep' the class `unicly:unique-universal-identifier'~% ~
             got: ~S~% type-of: ~S~%" subclass (type-of subclass))))
+<<<<<<< HEAD
+>>>>>>> development
+=======
 >>>>>>> development
 
 (defun %verify-valid-uuid-subclass-slots (class-to-verify)
@@ -337,7 +350,10 @@
 
 ;;; ==============================
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> development
 ;; Alternative forms of macro `def-make-v5-uuid-extended',
 ;; `def-make-v4-uuid-extended' That are likely faster where we don't need to
 ;; accomodate specializations on `cl:update-instance-for-different-class'

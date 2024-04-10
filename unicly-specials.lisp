@@ -15,7 +15,10 @@
   (defvar *random-state-uuid* (make-random-state t))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> development
 (defvar +uuid-null-string+ "00000000-0000-0000-0000-000000000000")
 
 >>>>>>> development
