@@ -16,12 +16,15 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> development
 (defvar +uuid-null-string+ "00000000-0000-0000-0000-000000000000")
 
 >>>>>>> development
+=======
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 (defvar *uuid-null-uuid* nil)
 
 ;;; ==============================

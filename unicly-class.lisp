@@ -17,8 +17,13 @@
 
 ;; :NOTE Currently unused/unimplemented.
 ;; (defgeneric uuid-print-byte-array (uuid &key stream)
+<<<<<<< HEAD
 ;;   (:documentation
 ;;    #.(format nil
+=======
+;;   (:documentation 
+;;    #.(format nil 
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 ;;  "Print the byte-array representation of UUID in a format suitable to its class to STREAM.~%~@
 ;; UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
 ;; STREAM is an output-stream.~%~@
@@ -531,7 +536,11 @@ Instance of this class return T for both `unicly:uuid-eql' and
       (uuid-print-bytes os uuid))
     (if (or (eq string-or-char-type 'base-char)
             (eq string-or-char-type 'character))
+<<<<<<< HEAD
         (if upcase
+=======
+        (if upcase 
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
             (if (eq string-or-char-type 'base-char)
                 (coerce (nstring-upcase fp-strm :start 0 :end 32) 'simple-base-string)
                 (coerce (nstring-upcase fp-strm :start 0 :end 32) 'simple-string))
@@ -556,16 +565,27 @@ Instance of this class return T for both `unicly:uuid-eql' and
                      (make-array 32 :element-type string-or-char-type :fill-pointer 0))))
     (declare (string-with-fill-pointer fp-strm)
              (dynamic-extent fp-strm))
+<<<<<<< HEAD
     (format fp-strm
             (ironclad:byte-array-to-hex-string uuid
                                                :start 0
                                                :end 16
+=======
+    (format fp-strm 
+            (ironclad:byte-array-to-hex-string uuid 
+                                               :start 0  
+                                               :end 16 
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
                                                :element-type (if (stringp string-or-char-type)
                                                                  (array-element-type string-or-char-type)
                                                                  string-or-char-type)))
     (if (or (eq string-or-char-type 'base-char)
             (eq string-or-char-type 'character))
+<<<<<<< HEAD
         (if upcase
+=======
+        (if upcase 
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
             (if (eq string-or-char-type 'base-char)
                 (coerce (nstring-upcase fp-strm :start 0 :end 32) 'simple-base-string)
                 (coerce (nstring-upcase fp-strm :start 0 :end 32) 'simple-string))
@@ -581,9 +601,15 @@ Instance of this class return T for both `unicly:uuid-eql' and
 ;; :NOTE SBCL allows speciaclizing simple-bit-vector
 (defmethod uuid-print-bit-vector (#-sbcl (uuid bit-vector) #+sbcl (uuid simple-bit-vector) &key stream)
   ;; #-:sbcl (find-method (fdefinition 'uuid-print-bit-vector) nil '(simple-bit-vector t))
+<<<<<<< HEAD
   ;; #+:sbcl (find-method (fdefinition 'uuid-print-bit-vector) nil '(simple-bit-vector t))
            (declare (uuid-bit-vector-128 uuid)
                     (optimize (speed 3)))
+=======
+  ;; #+:sbcl (find-method (fdefinition 'uuid-print-bit-vector) nil '(simple-bit-vector t))                                  
+  (declare (uuid-bit-vector-128 uuid)
+           (optimize (speed 3)))
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
   ;; #-sbcl (etypecase bv2 (uuid-bit-vector-128 t))
   (uuid-bit-vector-128-check-type uuid)
   (with-standard-io-syntax (write uuid :stream stream)))

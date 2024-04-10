@@ -6,6 +6,7 @@
 ;; :NOTE The inteface defined here is experimental and subject to change!
 ;;
 <<<<<<< HEAD
+<<<<<<< HEAD
 ;; The current interface as defined below is not hooking into the MOP and
 ;; everything is written out by hand as a bunch of macros.
 ;;
@@ -37,34 +38,47 @@
 ;; `def-make-v5-uuid-extended' at the bottom of this file which is functional and
 ;; can be adapted to for use in third-party code but it isn't particular CLOS
 ;; friendly.
+=======
+;; The current interface as defined below is not hooking into the MOP and
+;; everything is written out by hand as a bunch of macros.
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 ;;
-;; There are some issues around subclassing `unique-universal-identifier' b/c of
-;; we the way we've chosen to interact with the base class UUID class
-;; `unique-universal-identifier'. Basically we treat the slot values of its
-;; instances as immutable once instantiated and try to go out of our way to
-;; protect those slots. It may have been wiser to define the base class as a
-;; structure (which would likely open up other complications) and then move the
-;; slot values of an instantiated UUID structure into a CLOS thing. 
-;; The original intent behind defining UUIDs as classes was to:
-;; implement unique-universal-identifier in a manner similar enough to the
-;; class uuid:uuid that existing 3 party code using the uuid would remain
-;; familar. If we moved to structure based instance we would likely have to
-;; allocate both a class object and a structure object for each UUID created
-;; In any event, as it stands we're sticking with the existing class interface.
-;; This said, the current interface as defined below is not hooking into the MOP and everything by hand with attempting to 
+;; There are some issues around defining a direct CLOS oriented
+;; defgeneric/defmethod interface w/r/t subclassing
+;; `unique-universal-identifier' b/c of the way we've chosen to interact with
+;; the base UUID class `unique-universal-identifier' and do some non-CLOS
+;; friendly things by treating the slot values of its instances as immutable
+;; once instantiated and try to go out of our way to protect those slots.  It
+;; may have been wiser to define the base class as a structure (which would
+;; likely open up other complications) and then move the slot values of an
+;; instantiated UUID structure into a CLOS thing.  Our original intent behind
+;; defining UUIDs as classes was to implement the class
+;; `unique-universal-identifier' in a manner similar enough to the class `uuid:uuid'
+;; that existing 3 party code using the uuid system would retain a (mostly)
+;; familar interface.  Should we ever decide to move to structure based
+;; instances of unique-universal-identifier we would likely have to allocate
+;; both a class object and a structure object for each UUID created in much the
+;; same way that we are now doing with subclasses.  In any event, as it stands,
+;; we're sticking with the existing class interface.
 ;;
 ;; :USAGE
 ;;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> development
 =======
 >>>>>>> development
+=======
+;; (defpackage #:tt-uuid-extended (:use #:common-lisp #:unicly))
+;;
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 ;; (defclass indexable-uuid (unicly:unique-universal-identifier)
 ;;  ((bit-vector 
 ;;    :reader bit-vector-of-uuid)
 ;;   (integer-128
 ;;    :reader integer-128-of-uuid)))
 ;;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 ;; (unicly::def-make-uuid-extend-class-fun indexed indexable-uuid)
@@ -74,6 +88,9 @@
 =======
 ;; (def-make-uuid-extend-class-fun indexed indexable-uuid)
 >>>>>>> development
+=======
+;; (unicly::def-make-uuid-extend-class-fun indexed indexable-uuid)
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 ;;
 ;; (defmethod update-instance-for-different-class  ((old unicly:unique-universal-identifier)
 ;;                                                  (new indexable-uuid)
@@ -95,6 +112,9 @@
 ;;           (slot-value new 'integer-128) (unicly::uuid-bit-vector-to-integer (slot-value new 'bit-vector)))))
 ;;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 ;; (make-v5-uuid-indexed unicly:*uuid-namespace-dns* "bubba")
 ;; => eea1105e-3681-5117-99b6-7b2b5fe1f3c7
 ;;
@@ -133,6 +153,7 @@
 ;;       (unicly::*uuid-allow-null-like-namespace-args* t))
 ;;   (make-v5-uuid-indexed (make-instance 'indexable-uuid) "bubba"))
 ;; => ca773f8d-32a5-51fa-915e-1600b9c37958
+<<<<<<< HEAD
 =======
 ;; (make-v5-uuid-indexable *uuid-namespace-dns* "bubba")
 ;; (make-v3-uuid-indexable *uuid-namespace-dns* "bubba")
@@ -141,6 +162,8 @@
 >>>>>>> development
 =======
 >>>>>>> development
+=======
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 ;;
 ;;; ==============================
 ;;
@@ -160,10 +183,14 @@
   (unless (equal '(T T)
                  (multiple-value-list
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
                   (subtypep maybe-valid-uuid-subclass 'unique-universal-identifier)))
     (error "Arg MAYBE-VALID-UUID-SUBCLASS not `cl:subtypep' the class `unicly:unique-universal-identifier'~% ~
             got: ~S~% type-of: ~S~%" maybe-valid-uuid-subclass (type-of maybe-valid-uuid-subclass)))
   (the symbol maybe-valid-uuid-subclass))
+<<<<<<< HEAD
 =======
                   (subtypep 'uuid-indexable-v5 'unique-universal-identifier)))
     (error "Arg SUBCLASS not `cl:subtypep' the class `unicly:unique-universal-identifier'~% ~
@@ -172,6 +199,8 @@
 >>>>>>> development
 =======
 >>>>>>> development
+=======
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 
 (defun %verify-valid-uuid-subclass-slots (class-to-verify)
   (let ((obj (make-instance class-to-verify)))
@@ -347,6 +376,7 @@
      (unicly::def-uuid-from-bit-vector-extendable ,make-extended-suffix ,extended-class t)
      (values)))
 
+<<<<<<< HEAD
 
 ;;; ==============================
 <<<<<<< HEAD
@@ -426,6 +456,8 @@
 ;;; ==============================
 
 
+=======
+>>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
 ;;; ==============================
 >>>>>>> development
 ;;; EOF
