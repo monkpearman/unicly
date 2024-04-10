@@ -9,13 +9,13 @@
 ;; | compared to other alternatives.  This lends itself well to sorting,
 ;; | ordering, and hashing of all sorts, storing in databases, simple
 ;; | allocation, and ease of programming in general.
-;; | 
+;; |
 ;; | Since UUIDs are unique and persistent, they make excellent Uniform
 ;; | Resource Names.  The unique ability to generate a new UUID without a
 ;; | registration process allows for UUIDs to be one of the URNs with the
 ;; | lowest minting cost.
 ;; `----
-;; 
+;;
 ;; ,---- RFC4122 Section 3. "Namespace Registration Template":
 ;; | Identifier persistence considerations:
 ;; | UUIDs are inherently very difficult to resolve in a global sense.
@@ -34,18 +34,18 @@
 ;; | mechanisms or conventions used for allocating names and ensuring
 ;; | their uniqueness within their name spaces are beyond the scope of
 ;; | this specification.
-;; | 
+;; |
 ;; | The requirements for these types of UUIDs are as follows:
-;; | 
+;; |
 ;; | o  The UUIDs generated at different times from the same name in the
 ;; |    same namespace MUST be equal.
-;; | 
+;; |
 ;; | o  The UUIDs generated from two different names in the same namespace
 ;; |    should be different (with very high probability).
-;; | 
+;; |
 ;; | o  The UUIDs generated from the same name in two different namespaces
 ;; |    should be different with (very high probability).
-;; | 
+;; |
 ;; | o  If two UUIDs that were generated from names are equal, then they
 ;; |    were generated from the same name in the same namespace (with very
 ;; |    high probability).
@@ -86,18 +86,18 @@
            (optimize (speed 3)  (debug 0)))
   ;; (or (and (or (= version 3) (= version 5)) version)
   ;; (error "arg VERSION is not integer 3 nor 5"))
-  #-sbcl (etypecase version 
+  #-:sbcl (etypecase version
            ((mod 6) version))
   (unless (logbitp 1 (logcount version))
     (error "arg VERSION is not integer 3 nor 5"))
-  (the uuid-v3or5-int version))
+  (the uuid-v3-or-5-int version))
 
 (declaim (inline %verify-digest-version))
 (defun %verify-digest-version (chk-version)
   (declare (type (mod 6) chk-version)
            (inline %verify-version-3-or-5)
            (optimize (speed 3)))
-  (if (logbitp 1 (the uuid-v3or5-int (%verify-version-3-or-5 chk-version)))
+  (if (logbitp 1 (the uuid-v3-or-5-int (%verify-version-3-or-5 chk-version)))
       :MD5
       :SHA1))
 
@@ -106,33 +106,37 @@
 ;; We can run approx 3x faster and allocate half as much!
 ;;
 ;; However, benchmarks suggest that sb-ext:string-to-octets is significantly faster.
-;; 
+;;
 ;; :NOTE sb-ext:string-to-octets is approx 11x faster
 ;;        and conses 75% less than flexi-streams:string-to-octets
 ;; :NOTE Significant additional gains can likely be had if we cache the namespace
 ;; byte-array of an uuid-namespace e.g. uuid-digest-uuid-instance-cached with
 ;; args DIGEST-VERSION and NAME only.
 (defun uuid-digest-uuid-instance (digest-version uuid-namespace-instance name)
-  ;; This is step two of RFC4122 section 4.3 
+  ;; This is step two of RFC4122 section 4.3
   ;; -  Compute the hash of the name space ID concatenated with the name.
   (declare (type (mod 6) digest-version)
            (unique-universal-identifier uuid-namespace-instance)
            (type string-compat name)
-           (inline %uuid-string-to-octets 
+           (inline %uuid-string-to-octets
                    %verify-digest-version
                    %uuid-digest-uuid-instance-sha1
                    %uuid-digest-uuid-instance-md5)
            (optimize (speed 3)))
-  (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
-                   (uuid-get-namespace-bytes uuid-namespace-instance)))
-        ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
-        (name-ba (%uuid-string-to-octets name))) 
-    (declare (type uuid-byte-array-16 uuid-ba)
-             (type uuid-byte-array    name-ba))
+  ;; :NOTE Prior to 2011-09-20 we never checked for the null-uuid or the empty string:
+  ;; (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
+  ;;                  (uuid-get-namespace-bytes uuid-namespace-instance)))
+  ;;       ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
+  ;;       (name-ba (%uuid-string-to-octets name)))
+  ;;   (declare (type uuid-byte-array-16 uuid-ba)
+  ;;            (type uuid-byte-array    name-ba))
+  (multiple-value-bind (uuid-ba name-ba) (the (values uuid-byte-array-16 uuid-byte-array &optional)
+                                           (verify-sane-namespace-and-name uuid-namespace-instance name))
+    (declare (uuid-byte-array-16 uuid-ba) (uuid-byte-array name-ba))
     (ecase (%verify-digest-version digest-version)
       (:MD5  (the (values uuid-byte-array-16 &optional)
-               (%uuid-digest-uuid-instance-md5  uuid-ba name-ba))) 
-      (:SHA1 
+               (%uuid-digest-uuid-instance-md5  uuid-ba name-ba)))
+      (:SHA1
        (the (values uuid-byte-array-20 &optional)
          (%uuid-digest-uuid-instance-sha1 uuid-ba name-ba))))))
 
@@ -149,22 +153,22 @@
 ;;   generated from names in that name space; see Appendix C for some
 ;;   pre-defined values.
 ;;
-;; - Choose either MD5 or SHA-1  as the hash algorithm; 
+;; - Choose either MD5 or SHA-1  as the hash algorithm;
 ;;   If backward compatibility is not an issue, SHA-1 is preferred.
 ;;
 ;;
-;;  1) 
+;;  1)
 ;;     - Convert the name to a canonical sequence of octets (as defined by
 ;;       the standards or conventions of its namespace); 
 ;;       `-> `sb-ext:string-to-octets'/`flexi-streams:string-to-octets'
-;; 
+;;
 ;;     - put the namespace ID in network byte order;
 ;;       `--> `uuid-get-namespace-bytes'
 ;;
 ;;  2) Compute the hash of the namespace ID concatenated with the name.
 ;;     `--> `uuid-digest-uuid-instance'
 ;;
-;;  3) Set octets zero through 3 of the time_low field to octets zero through 3 of the hash. 
+;;  3) Set octets zero through 3 of the time_low field to octets zero through 3 of the hash.
 ;;     `--> `%uuid_time-low-request'
 ;;
 ;;  4) Set octets zero and one of the time_mid field to octets 4 and 5 of the hash.
@@ -172,23 +176,23 @@
 ;; ,----
 ;; | 5) Set octets zero and one of the time_hi_and_version field to octets 6 and 7 of the hash.
 ;; |    `--> `%uuid_time-high-and-version-request'
-;; | 
-;; | 6) Set the four most significant bits (bits 12 through 15) of the time_hi_and_version field 
+;; |
+;; | 6) Set the four most significant bits (bits 12 through 15) of the time_hi_and_version field
 ;; |    to the appropriate 4-bit version number.
-;; |    `--> `%uuid_time-high-and-version-request'  
+;; |    `--> `%uuid_time-high-and-version-request'
 ;; |
 ;; |    IOW, set top bits #*0101 for SHA1 or #*0011 for MD5.
-;; | 
+;; |
 ;; |    :NOTE Step 6 correpsonds with Step 2 of Section 4.4 bits #*0100 for v4 random
 ;; `----
 ;; ,----
 ;; | 7) Set the clock_seq_hi_and_reserved field to octet 8 of the hash.
 ;; |    `--> `%uuid_clock-seq-and-reserved-request'
-;; | 
+;; |
 ;; | 8) Set the two most significant bits (bits 6 and 7) of the clock_seq_hi_and_reserved
 ;; |    to zero and one, respectively.
 ;; |    `--> `%uuid_clock-seq-and-reserved-request'
-;; | 
+;; |
 ;; |    :NOTE These correpsonds with Step 1 of Section 4.4
 ;; `----
 ;;
@@ -222,7 +226,7 @@
   (declare (type uuid-byte-array byte-array)
            (type (mod 6) version)
            (optimize (speed 3)))
-  (the uuid-ub16 
+  (the uuid-ub16
     (dpb version (byte 4 12)
          (the uuid-ub16 (uuid-request-integer byte-array 6 2)))))
 
@@ -235,7 +239,7 @@
 (declaim (inline %uuid_clock-seq-low-request))
 (defun %uuid_clock-seq-low-request (byte-array)
   (declare (type uuid-byte-array byte-array)
-           (optimize (speed 3)))  
+           (optimize (speed 3)))
   (the uuid-ub8 (aref byte-array 9)))
 
 (declaim (inline %uuid_node-request))
@@ -276,13 +280,13 @@
                    :%uuid_node (the uuid-ub48 (%uuid_node-request v3-digest-byte-array)))))
 
 (declaim (inline digested-v3or5-uuid))
-(defun digested-v3or5-uuid (digest-byte-array digest-3-or-5) 
+(defun digested-v3or5-uuid (digest-byte-array digest-3-or-5)
   (declare (type uuid-byte-array digest-byte-array)
            (inline %verify-version-3-or-5 digested-v3-uuid digested-v5-uuid)
            (optimize (speed 3)))
   (let ((version-if  (%verify-version-3-or-5 digest-3-or-5)))
     (the unique-universal-identifier
-      (ecase (the uuid-v3or5-int version-if)
+      (ecase (the uuid-v3-or-5-int version-if)
         (#x03
          (setf version-if (the unique-universal-identifier
                             (digested-v3-uuid (the uuid-byte-array-16 digest-byte-array)))))
@@ -309,21 +313,21 @@
 
 ;;; ==============================
 ;; ,---- RFC4122 Section 4.4. "Creating UUIDs from Truly-Random/Pseudo-Random Numbers":
-;; | 
+;; |
 ;; | The version 4 UUID is meant for generating UUIDs from truly-random or
 ;; | pseudo-random numbers.  The algorithm is as follows:
 ;; |
 ;; |  1)  Set the two most significant bits (bits 6 and 7) of the
 ;; |     clock_seq_hi_and_reserved to zero and one, respectively.
-;; |     `-> Slot `%uuid_clock-seq-and-reserved' 
-;; |     :NOTE Steps 7 and 8 for v3 and v5 with `%uuid_clock-seq-and-reserved-request' 
+;; |     `-> Slot `%uuid_clock-seq-and-reserved'
+;; |     :NOTE Steps 7 and 8 for v3 and v5 with `%uuid_clock-seq-and-reserved-request'
 ;; |
 ;; |  2) Set the four most significant bits (bits 12 through 15) of the
 ;; |     time_hi_and_version field to the 4-bit version number from Section 4.1.3.
-;; |     `-> Slot `%uuid_time-high-and-version' e.g. #*0100 
+;; |     `-> Slot `%uuid_time-high-and-version' e.g. #*0100
 ;; |     :NOTE Correspond with step 6 for v3 and v5 which sets top bits 
 ;; |     #*01010 for SHA1 or #*0011 for MD5 with `%uuid_time-high-and-version-request'
-;; |     
+;; |
 ;; |  3) Set all the other bits to randomly (or pseudo-randomly) chosen
 ;; |     values.
 ;; |     `-> Slots `%uuid_time-low', `%uuid_time-mid', `%uuid-clock-seq-low', `%uuid_node'
@@ -336,7 +340,7 @@
       (make-instance 'unique-universal-identifier
                      :%uuid_time-low (the uuid-ub32 (random #xFFFFFFFF))
                      :%uuid_time-mid (the uuid-ub16 (random #xFFFF))
-                     :%uuid_time-high-and-version  
+                     :%uuid_time-high-and-version
                      (the uuid-ub16 (dpb #b0100 (byte 4 12) (ldb (byte 12 0) (the uuid-ub16 (random #xFFFF)))))
                      :%uuid_clock-seq-and-reserved
                      (the uuid-ub8  (dpb #b0010 (byte 2  6) (ldb (byte  8 0) (the uuid-ub8 (random #xFF)))))
@@ -344,8 +348,9 @@
                      :%uuid_node (the uuid-ub48 (random #xFFFFFFFFFFFF))))))
 
 (defun uuid-as-urn-string (stream uuid)
-  (declare (type STREAM-OR-BOOLEAN-OR-STRING-WITH-FILL-POINTER stream) 
-           (type unique-universal-identifier uuid))
+  (declare (type STREAM-OR-BOOLEAN-OR-STRING-WITH-FILL-POINTER stream)
+           (type unique-universal-identifier uuid)
+           (optimize (speed 3)))
   ;; :NOTE RFC4122 Section 3. "Namespace Registration Template"
   ;; Case is significant on output.
   (format stream "~(urn:uuid:~A~)" uuid))
@@ -373,10 +378,10 @@
                    %uuid_byte-array-16-ub8-reqeust
                    %uuid_node-request)
            (optimize (speed 3)))
-  #-sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
+  #-:sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
                  "Arg BYTE-ARRAY does not satisfy `uuid-byte-array-p'")
   (when (%uuid-byte-array-null-p byte-array)
-    (return-from uuid-from-byte-array 
+    (return-from uuid-from-byte-array
       ;; Remember, there can only be one *uuid-null-uuid*!
       (make-instance 'unique-universal-identifier)))
   (make-instance 'unique-universal-identifier
@@ -394,16 +399,16 @@
 ;;   ;; IOW if we call this from uuid-digest-uuid-instance we deserve to fail.
 ;;   (declare (type uuid-byte-array-16 byte-array)
 ;;            (inline %uuid-byte-array-null-p))
-;;   #-sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
+;;   #-:sbcl (assert (uuid-byte-array-p byte-array) (byte-array)
 ;;                  "Arg BYTE-ARRAY does not satisfy `uuid-byte-array-p'")
 ;;   (when (%uuid-byte-array-null-p byte-array)
-;;     (return-from uuid-from-byte-array 
+;;     (return-from uuid-from-byte-array
 ;;       ;; Remember, there can only be one *uuid-null-uuid*!
 ;;       (make-instance 'unique-universal-identifier)))
 ;;   (macrolet ((arr-to-bytes (from to w-array)
 ;;                "Helper macro used in `uuid-from-byte-array'."
 ;;                (declare ((mod 17) from to))
-;;                `(loop 
+;;                `(loop
 ;;                    for i from ,from to ,to
 ;;                    with res = 0
 ;;                    do (setf (ldb (byte 8 (* 8 (- ,to i))) res) (aref ,w-array i))
