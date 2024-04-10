@@ -11,12 +11,17 @@
   '(mod 6))
 
 ;; simple-type
-;; (funcall #'(lambda (x) (declare (uuid-v3or5-int x) (optimize (speed 3)))  x) 6)
-;; (typep 3 'uuid-v3or5-int)
-;; (typep 5 'uuid-v3or5-int)
-;; (and (null (typep 4 'uuid-v3or5-int)))
-(deftype uuid-v3or5-int ()
-  '(and (integer 3 5) (not (integer 4 4))))
+;; (funcall #'(lambda (x) (declare (uuid-v3-4-or-5-int x) (optimize (speed 3)))  x) 6)
+(deftype uuid-v3-4-or-5-int ()
+  '(and uuid-version-int (integer 3 5)))
+
+;; simple-type
+;; (funcall #'(lambda (x) (declare (uuid-v3-or-5-int x) (optimize (speed 3)))  x) 6)
+;; (typep 3 'uuid-v3-or-5-int)
+;; (typep 5 'uuid-v3-or-5-int)
+;; (and (null (typep 4 'uuid-v3-or-5-int)))
+(deftype uuid-v3-or-5-int ()
+  '(and uuid-v3-4-or-5-int (not (integer 4 4))))
 
 ;; simple-type
 ;; (funcall #'(lambda (x) (declare (uuid-ub48 x) (optimize (speed 3)))  x) #XFFFFFFFFFFFF0)
@@ -123,6 +128,7 @@
     `(simple-array uuid-ub8 (,sz))))
 
 ;; (mon:type-expand-all 'uuid-byte-array-16)
+;; uuid-byte-array-<N>
 (def-uuid-byte-array-length 20)
 (def-uuid-byte-array-length 16)
 
@@ -142,13 +148,13 @@
 ;; complex-type
 (deftype uuid-string-32 ()
   #-:lispworks '(array character (32))
-  #+:lispworks '(simple-stringn-length-compat 36))
+  #+:lispworks '(simple-string-n-length-compat 36))
 
 ;; complex-type
 (deftype uuid-string-36 ()
   #-:lispworks '(array character (36))
   #+:lispworks '(string-n-length-compat 36))
-
+ 
 ;; complex-type
 ;; currently unused :SEE `uuid-get-bytes' in unicly/unicly-deprecated.lisp
 (deftype uuid-byte-string ()
@@ -218,6 +224,7 @@
                  uuid-bit-vector-8-p
                  uuid-string-32-p
                  uuid-string-36-p
+                 uuid-string-36-check-type
                  uuid-byte-array-p
                  uuid-byte-array-16-p
                  uuid-byte-array-16-check-type
@@ -275,6 +282,8 @@
 ;; uuid-hex-string-32 has a satisfies of `string-all-hex-char-p'
 (defun uuid-hex-string-32-p (maybe-uuid-hex-string-32)
   (typep maybe-uuid-hex-string-32 'uuid-hex-string-32))
+
+;; uuid-hex-string-36
 
 (declaim (inline uuid-delimited-string-36-p))
 (defun uuid-delimited-string-36-p (maybe-delim-string-36)
