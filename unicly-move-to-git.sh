@@ -36,6 +36,7 @@ unicly-integers.lisp
 unicly-io.lisp
 unicly-loadtime-bind.lisp
 unicly-macros.lisp
+unicly-null-check.lisp
 unicly-specials.lisp
 unicly-string-uuid.lisp
 unicly-tests.lisp
@@ -47,6 +48,7 @@ unicly.lisp
 LICENSE.txt
 README
 LISPWORKS
+make-unicly-etags.sh
 unicly-move-to-git.sh"
 
 cd $UNICLY_SRC
