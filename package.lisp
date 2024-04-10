@@ -7,18 +7,18 @@
 
 (defpackage #:unicly
   (:use #:common-lisp)
-  (:export 
+  (:export
    ;;
    ;;
    ;; unicly/unicly-specials.lisp
    ;;
-   #:*uuid-namespace-dns* 
-   #:*uuid-namespace-url* 
-   #:*uuid-namespace-oid* 
+   #:*uuid-namespace-dns*
+   #:*uuid-namespace-url*
+   #:*uuid-namespace-oid*
    #:*uuid-namespace-x500*
-   ;; 
+   ;;
    ;; #:*random-state-uuid*
-   ;; #:*uuid-null-uuid*                ; Not exported, Bound at loadtime with `make-null-uuid-loadtime' 
+   ;; #:*uuid-null-uuid*                ; Not exported, Bound at loadtime with `make-null-uuid-loadtime'
    ;;                                   ; and treated as a special case thereafter
    ;;
  ;; unicly/macros.lisp
@@ -54,7 +54,7 @@
    ;; #:uuid-ub24                       ; SIMPLE-TYPE
    ;; #:uuid-ub16                       ; SIMPLE-TYPE
    ;; #:uuid-ub8                        ; SIMPLE-TYPE
-   ;; #:uuid-ub128-integer-length       ; SIMPLE-TYPE  
+   ;; #:uuid-ub128-integer-length       ; SIMPLE-TYPE
    ;; #:uuid-ub64-integer-length        ; SIMPLE-TYPE
    ;; #:uuid-ub48-integer-length        ; SIMPLE-TYPE
    ;; #:uuid-ub32-integer-length        ; SIMPLE-TYPE
@@ -64,7 +64,7 @@
    ;; #:uuid-version-int                ; SIMPLE-TYPE
    ;; #:uuid-v3-or-5-int                ; SIMPLE-TYPE
    ;; #:uuid-bit-vector                 ; COMPLEX-TYPE
-   ;; #:uuid-bit-vector-128             ; COMPLEX-TYPE   
+   ;; #:uuid-bit-vector-128             ; COMPLEX-TYPE
    ;; #:uuid-bit-vector-48              ; COMPLEX-TYPE
    ;; #:uuid-bit-vector-32              ; COMPLEX-TYPE
    ;; #:uuid-bit-vector-16              ; COMPLEX-TYPE
@@ -83,7 +83,7 @@
    ;; #:uuid-byte-array-20              ; COMPLEX-TYPE
    ;; #:uuid-byte-string                ; COMPLEX-TYPE
    ;; #:uuid-byte-array-null            ; COMPLEX-TYPE
-   ;; #:uuid-bit-vector-null            ; COMPLEX-TYPE 
+   ;; #:uuid-bit-vector-null            ; COMPLEX-TYPE
    ;; #:uuid-string-32                  ; COMPLEX-TYPE
    ;; #:uuid-string-36                  ; COMPLEX-TYPE
    ;; #:uuid-hex-string-32              ; COMPLEX-TYPE
@@ -121,7 +121,7 @@
    ;; #:uuid-byte-string-check-type
    #:uuid-byte-array-null-p
    ;; #:uuid-byte-array-null-check-type
-   ;; 
+   ;;
    ;;
    ;; #:string-with-fill-pointer-p
    ;; #:string-with-fill-pointer-check-type
@@ -133,17 +133,17 @@
    #:uuid-hex-string-36-p
    ;;
    ;;
- ;; unicly/unicly-class.lisp   
+ ;; unicly/unicly-class.lisp
    ;;
    #:unique-universal-identifier       ; <CLASS>
    #:unique-universal-identifier-p     ; <GENERIC>
    #:uuid-eql                          ; <GENERIC>
    #:uuid-print-bit-vector             ; <GENERIC>
    #:uuid-print-bytes-to-string        ; <GENERIC>
-   #:uuid-princ-to-string              ; <GENERIC> 
+   #:uuid-princ-to-string              ; <GENERIC>
    #:uuid-copy-uuid
    #:unique-universal-identifier-null-p
-   ;; 
+   ;;
    ;; #:%unique-universal-identifier-null-p
    ;; #:%make-null-uuid-loadtime
    ;; #:unique-universal-identifier-null
@@ -193,7 +193,7 @@
    ;; #:uuid-bit-vector-to-integer
    ;; #:uuid-integer-128-to-bit-vector
    ;; #:uuid-deposit-octet-to-bit-vector
-   ;; 
+   ;;
    #:uuid-bit-vector-to-byte-array
    #:uuid-byte-array-to-bit-vector
    ;;
@@ -206,7 +206,7 @@
  ;; unicly/unicly-byte-arrays.lisp
    ;;
    #:uuid-get-namespace-bytes
-   #:uuid-byte-array-16-zeroed   
+   #:uuid-byte-array-16-zeroed
    #:uuid-from-byte-array
    #:uuid-byte-array-16-to-integer
    ;;
@@ -244,7 +244,7 @@
    ;; #:%uuid-get-bytes-if                   ; DEPRECATED
    ;; #:uuid-to-byte-array                   ; DEPRECATED
    ;; #:uuid-number-to-byte-array            ; DEPRECATED
-   ;; 
+   ;;
    ;;
  ;; unicly/unicly-string-uuid.lisp
    ;;
@@ -287,7 +287,7 @@
    ;; #:fundoc
    ;; #:vardoc
    ;; #:typedoc
-   ;; #:string-or-null                     ; TYPE   
+   ;; #:string-or-null                     ; TYPE
    ;; #:hexadecimal-char                   ; TYPE
    ;; #:not-null                           ; TYPE
    ;; #:string-not-null-or-empty           ; TYPE
