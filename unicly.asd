@@ -22,10 +22,10 @@
                                       #(109 111 110 107 101 121 64 115 97 110 100 112 
                                         102 114 97 109 105 110 103 46 99 111 109))))
 
-(defsystem #:unicly
+(asdf:defsystem #:unicly
   :name "unicly"
   :licence "MIT"
-  :version "2011.08.31"
+  :version "2024.03.13"
   ;; :maintainer "MON KEY"
   :maintainer #.*author-maintainer-contact*
   :description "UUID Generation per RFC 4122"
@@ -51,6 +51,7 @@
                (:file "unicly-integers")
                (:file "unicly-byte-arrays")
                (:file "unicly-bit-vectors")
+               (:file "unicly-null-check")
                (:file "unicly")
                (:file "unicly-string-uuid")
                (:file "unicly-uuid-version")
@@ -60,7 +61,10 @@
                (:file "unicly-docs" )
                ;; (:file "unicly-compat")
                ;; (:file "unicly-deprecated")
-               ))
+               )
+  ;; :in-order-to ((test-op (test-op :unicly/tests)))
+  
+  )
 
 (defmethod asdf:perform :after ((op asdf:load-op) (system (eql (asdf:find-system :unicly))))
   (pushnew :unicly cl:*features*)
@@ -68,6 +72,25 @@
                              :directory `(,@(pathname-directory (truename (asdf:system-source-directory :unicly))))
                              :name "unicly-loadtime-bind" :type "lisp"))))
     (and chk-if (load  chk-if))))
+
+
+;; unicly/unicly-loadtime-bind.lisp
+
+;; (asdf:defsystem :unicly/unicly-test
+;;   :name "unicly-test"
+;;   :licence "MIT"
+;;   :version "2024.03.13"
+;;   ;; :maintainer "MON KEY"
+;;   :maintainer #.*author-maintainer-contact*
+;;   :description "Unicly tests"  
+;;   :components  
+;;   ((:file  "unicly-tests")
+;;   )
+;;   :depends-on (:unicly )
+;;   ;; :perform (test-op (o c) (funcall (intern (symbol-name '#:do-tests)(find-package '#:unicly/unicly-test))))
+;; )
+
+
 
 
 ;;; ==============================
