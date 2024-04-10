@@ -60,6 +60,12 @@
 (deftype string-not-null-or-empty ()
   '(and not-null string-not-empty))
 
+(declaim (inline %string-not-empty-p))
+(defun %string-not-empty-p (maybe-not-null-or-empty-string)
+  (declare (optimize (speed 3)))
+  (typep maybe-not-null-or-empty-string 'string-not-empty))
+
+(declaim (inline simple-string-compat-p))
 (defun simple-string-compat-p (maybe-simple-string-compat)
   (declare (optimize (speed 3)))
   #+:lispworks 
@@ -80,16 +86,27 @@
 (declaim (inline string-all-hex-char-p))
 (defun string-all-hex-char-p (maybe-hex-string)
   (declare (string-or-null maybe-hex-string)
-           (inline string-not-null-or-empty-p
+           (inline simple-string-compat-p
+                   %string-not-empty-p
                    hexadecimal-char-p)
            (optimize (speed 3)))
-  (and maybe-hex-string ;; allow null and bail
-       (string-not-null-or-empty-p (the string-compat maybe-hex-string))
-       (or (simple-string-compat-p (the string-compat maybe-hex-string))
-           (setf maybe-hex-string (copy-seq maybe-hex-string)))
-       (loop 
-          for chk-hex across (the simple-string-compat maybe-hex-string)
-          always (hexadecimal-char-p chk-hex))))
+  (when (null maybe-hex-string)
+    (return-from string-all-hex-char-p nil))
+  (the boolean
+    (and (locally 
+             (declare (string-compat maybe-hex-string))
+           (%string-not-empty-p maybe-hex-string)
+           (or (simple-string-compat-p maybe-hex-string)
+               (setf maybe-hex-string (copy-seq maybe-hex-string))))
+         (locally
+             (declare (simple-string-compat maybe-hex-string))
+           (loop 
+              for chk-hex across maybe-hex-string
+              always (hexadecimal-char-p chk-hex))))))
+
+;; (loop 
+;;    for chk-hex across +uuid-null-string+ of-type simple-string-compat
+;;    always (hexadecimal-char-p chk-hex))
 
 ;; :SOURCE sbcl/src/code/stream.lisp
 (declaim (inline vector-with-fill-pointer))
@@ -136,27 +153,42 @@
 	(declare (ignore v))
 	(not errorp)))))
 
-(defun doc-set (name object-type string args);&rest args)
-  (declare (type symbol name) 
-           ((member variable type function) object-type)
-           ((or null string-compat) string))
+(defun doc-set (name object-type string args) ;&rest args)
+  (declare (type (or standard-method standard-generic-function (and symbol (not-null)))  name) 
+           (type (member variable type function generic method) object-type)
+           ((or null string) string))
   (let ((doc-or-null 
          (if (null string)
              string
              (apply #'format nil `(,string ,@args)))))
     (ecase object-type
-          (function
-           (setf (documentation (fdefinition name) object-type) 
-                 (setf (documentation name object-type) doc-or-null)))
-          (variable 
-           (locally (declare (special name))
+      (function
+       (setf (documentation (fdefinition name) object-type) 
              (setf (documentation name object-type) doc-or-null)))
-          (type 
-           (setf (documentation name object-type) doc-or-null)))))
+      (variable 
+       (locally (declare (special name))
+         (setf (documentation name object-type) doc-or-null)))
+      (type 
+       (setf (documentation name object-type) doc-or-null))
+      (method
+       (setf (documentation name t) doc-or-null))
+      (generic
+       (setf (documentation name t) doc-or-null)))))
 
 (defun fundoc (name &optional string &rest args)
   (declare (type symbol name) ((or null string) string))
   (doc-set name 'function string args))
+
+(defun generic-doc (function-designator &optional doc-string &rest args)
+  (when (and doc-string
+             (typep function-designator 'standard-generic-function))
+    (doc-set function-designator 'generic doc-string args)))
+
+(defun method-doc (generic-function-designator qualifiers specializers &optional doc-string &rest args)
+  (when doc-string
+    (let ((found-method (find-method generic-function-designator qualifiers specializers nil)))
+      (when (and found-method (typep found-method 'standard-method))
+        (doc-set found-method 'method doc-string args)))))
 
 (defun vardoc (name &optional string &rest args)
   (declare (type symbol name)
@@ -169,6 +201,7 @@
            ((or null string-compat) string))
   (when (type-specifier-p name)
     (doc-set name 'type string args)))
+
 
 ;;; ==============================
 
