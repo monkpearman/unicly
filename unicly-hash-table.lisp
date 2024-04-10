@@ -147,7 +147,10 @@
 ;; REHASH-SIZE defaults to 1.5. For large tables setting this value to
 #+:sbcl
 (defun make-hash-table-uuid (&key
-                             (size SB-IMPL::+MIN-HASH-TABLE-SIZE+)
+                             ;; :WAS (size SB-IMPL::+MIN-HASH-TABLE-SIZE+)
+                             ;; 7 is value of SB-IMPL::+MIN-HASH-TABLE-SIZE+ as of 03-10-24
+                             ;; share/sbcl/src/code/hash-table.lisp
+                             (size 7)
                              (rehash-size 1.5)
                              (rehash-threshold 1)
                              (weakness nil)
