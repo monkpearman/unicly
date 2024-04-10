@@ -14,6 +14,11 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defvar *random-state-uuid* (make-random-state t))
 
+<<<<<<< HEAD
+=======
+(defvar +uuid-null-string+ "00000000-0000-0000-0000-000000000000")
+
+>>>>>>> development
 (defvar *uuid-null-uuid* nil)
 
 ;;; ==============================
