@@ -18,6 +18,37 @@
  \(random-state-p  *random-state-uuid*\)~%~@
 :SEE-ALSO `cl:random-state', `cl:random-state-p'.~%")
 
+(vardoc '*uuid-allow-empty-string-name-args*
+"When value is null `make-v3-uuid' and `make-v5-uuid' will error when their NAME
+argumement is not of type `unicly::string-not-empty'.~%~@
+:SEE-ALSO `*uuid-allow-null-like-namespace-args*',
+`unicly::verify-sane-namespace-and-name', `unicly::%verify-non-empty-name-arg',
+`unicly::%verify-non-null-namespace-arg'.~%")
+
+(vardoc '*uuid-allow-null-like-namespace-args*
+"When value is null, `make-v3-uuid' and `make-v5-uuid' will error when their
+NAMESPACE argumement is an instance of the class `unique-universal-identifier'
+with all of its slot-values satisfying `cl:zerop' but which doesn't satisfy
+`unique-universal-identifier-null-p'.~%~@
+:NOTE RFC 4122 probably didn't have CLOS in mind w/r/t the null-uuid and as
+such when either of the following type of object is allowed as a NAMESPACE
+argument it may produce unexpected results and with unexpected consequences
+which may not be easily detected after the fact:~%
+ \(unique-universal-identifier-null-p \(make-instance 'unique-universal-identifier\)\)
+ \(unique-universal-identifier-null-p \(make-instance 'unique-universal-identifier-null\)\)
+ \(unique-universal-identifier-null-p \(make-instance 'mop-frobbed-subclass-of-unique-universal-identifier\)\)
+Their may be a performance impact when this argument is nil \(the default\) b/c we
+will have to check the slot-values of each namespace arg for each evaluation
+of `make-v5-uuid' / `make-v3-uuid'.~%~@
+A reasonable way to avoid this impact is to cache the NAMESPACEs common to a
+class you control and dynamically bind this variable inside a wrapper function:~%
+ \(make-v5-uuid-with-cached-namespace \(name\)
+   \(let \(\(*uuid-allow-null-like-namespace-args* t\)\)
+     \(make-v5-uuid <CACHED-NAMESPACE> name\)\)\)~%~@
+:SEE-ALSO `*uuid-allow-empty-string-name-args*', `unicly::verify-sane-namespace-and-name',
+`unicly::%verify-non-empty-name-arg',
+`unicly::%verify-non-null-namespace-arg'.~%")
+
 ;;; ==============================
 (vardoc '*uuid-namespace-dns*
 "A DNS namespace as provided with RFC4122 Appendix C. \"Some Name Space IDs\".~%~@
@@ -471,6 +502,53 @@ frob objects of type `uuid-hex-string-36'.~%~@
  \(typep \(subseq \(svref #\(\"e3115c49\" \"6e13\" \"4d21\" \"9a37\" \"a1af250a8f88\"\) 3\) 0 2\) 'uuid-hex-string-2\)~%~@
 :SEE-ALSO `uuid-hex-string-length', `uuid-hex-string-12', `uuid-hex-string-8',
 `uuid-hex-string-4', `uuid-hex-string-2'.~%")
+
+(typedoc 'uuid-version-int 
+         "An integer value in the range [0,5].~%~@
+Range represents the possible return values for `unicly:uuid-version-uuid' when
+an object is a UUID as per return value of:~%
+ `unicly:make-v3-uuid', `unicly:make-v4-uuid', `unicly:make-v5-uuid'~%~@
+and exclusive of return value for `unicly:make-null-uuid'.~%~@
+:EXAMPLE~%
+ \(loop 
+    for x from 0 below 6
+    for y = \(typep x 'uuid-version-int\)
+    always y\)~%~@
+:SEE-ALSO `unicly::uuid-v3-or-5-int', `unicly::uuid-v3-4-or-5-int', `unicly::uuid-version-bit-vector'.~%")
+
+(typedoc 'uuid-v3-or-5-int
+         "An integer value either 3 or 5.~%~@
+Range represents the possible return values for `unicly:uuid-version-uuid' when
+an object is a UUID as per return value of:~%
+ `make-v3-uuid'  `make-v5-uuid'~%~@
+:EXAMPLE~%
+ \(equal \(subseq \(mapcar #'\(lambda \(x\) \(typep x 'uuid-v3-or-5-int\)\)
+                        \(loop for x from 2 below 7 collect x\)\)
+                1 4\)
+        \(list T NIL T\)\)~%
+ \(equal \(mapcar #'\(lambda \(x\) \(typep \(uuid-version-uuid x\) 'uuid-v3-or-5-int\)\)
+                \(list \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\)
+                      \(make-v4-uuid\)
+                      \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+        \(list T NIL T\)\)~%~@
+:SEE-ALSO `unicly::uuid-version-int', `unicly::uuid-v3-4-or-5-int', `unicly::uuid-version-bit-vector'.~%")
+
+(typedoc 'uuid-v3-4-or-5-int
+         "An integer value in the range [3,5].~%~@
+Range represents the possible return values for `unicly:uuid-version-uuid' when
+an object is a UUID as per return value of:~%
+ `make-v3-uuid' `make-v4-uuid' `make-v5-uuid'~%~@
+:EXAMPLE~%
+ \(equal \(subseq \(mapcar #'\(lambda \(x\) \(typep x 'uuid-v3-4-or-5-int\)\)
+                        \(loop for x from 2 below 7 collect x\)\)
+                1 4\)
+        \(list T T T\)\)~%~@
+ \(equal \(mapcar #'\(lambda \(x\) \(typep \(uuid-version-uuid x\) 'uuid-v3-4-or-5-int\)\)
+                \(list \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\)
+                      \(make-v4-uuid\)
+                      \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+  \(list T T T\)\)~%~@
+:SEE-ALSO `unicly::uuid-version-int', `unicly::uuid-v3-or-5-int', `unicly::uuid-version-bit-vector'.~%")
 
 
 ;;; ==============================
@@ -1410,6 +1488,356 @@ Return value is an integer with an upper-bounds of a `uuid-ub128'.~%~@
 \(uuid-bit-vector-eql \(uuid-integer-128-to-bit-vector 317192554773903544674993329975922389959\)~%
                      \(uuid-byte-array-to-bit-vector \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)\)\)~%~@
 :SEE-ALSO `<XREF>'.~%")
+
+(fundoc 'verify-sane-namespace-and-name
+"Return as if by cl:values the uuid-byte-array representations of NAMESPACE and NAME.~%~@
+NAMESPACE is an object of type `unicly:unique-universal-identifier'.~%~@
+NAME is a string.~%~@
+Depending on value of special variables:~%
+`*uuid-allow-null-like-namespace-args*' `*uuid-allow-empty-string-name-args*'~%~@
+Signal an error if NAMESPACE is a null-uuid not satisfying `unique-universal-identifier-null-p'.
+Siganl an error if NAME fails to satisfy `unicly::%string-not-empty-p'.
+:EXAMPLE~%
+ \(verify-sane-namespace-and-name \(make-v4-uuid\) \"bubba\"\)~%
+ \(let \(\(*uuid-allow-empty-string-name-args* t\)\)
+   \(verify-sane-namespace-and-name \(make-v4-uuid\) \"\"\)\)~%
+ \(null \(ignore-errors \(verify-sane-namespace-and-name \(make-v4-uuid\) \"\"\)\)\)~%
+ \(let \(\(*uuid-allow-null-like-namespace-args* t\)\)
+   \(verify-sane-namespace-and-name \(make-instance 'unique-universal-identifier\) \"bubba\"\)\)~%
+ \(let \(\(*uuid-allow-null-like-namespace-args* t\)
+       \(*uuid-allow-empty-string-name-args*   t\)\)
+   \(verify-sane-namespace-and-name \(make-instance 'unique-universal-identifier\) \"\"\)\)~%
+:SEE-ALSO `unicly::%verify-non-empty-name-arg', `unicly::%verify-non-null-namespace-arg'.~%")
+
+(fundoc '%verify-non-empty-name-arg
+        "If value of `unicly::*uuid-allow-empty-string-name-args*' is T retrun NAME-ARG.~%~@
+If value of NAME-ARG is of type `unicly::string-not-empty' retrun NAME-ARG,
+if not and error is signaled.~%~@
+:EXAMPLE~%
+ \(%verify-non-empty-name-arg \"bubba\"\)
+ \(let \(\(*uuid-allow-empty-string-name-args* t\)\)
+   \(%verify-non-empty-name-arg \"\"\)\)
+ \(null \(ignore-errors \(%verify-non-empty-name-arg \"\"\)\)\)
+:SEE-ALSO `unicly::verify-sane-namespace-and-name', `unicly::%verify-non-null-namespace-arg'.~%")
+
+(fundoc '%verify-valid-uuid-subclass-type
+ "Return MAYBE-VALID-UUID-SUBCLASS if it is verifiably `cl:subtypep' the class
+`unicly:unique-universal-identifier' and not `cl:eq' the symbol
+UNIQUE-UNIVERSAL-IDENTIFIER, an error is signaled if not.~%~@
+MAYBE-VALID-UUID-SUBCLASS is a symbol designating a subclass.~%~@
+:EXAMPLE~%
+ \(null \(ignore-errors \(%verify-valid-uuid-subclass-type 'unique-universal-identifier\)\)\)~%
+ \(null \(ignore-errors \(%verify-valid-uuid-subclass-type 42\)\)\)~%
+ \(null \(ignore-errors \(%verify-valid-uuid-subclass-type 'cl:structure-class\)\)\)~%
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%verify-valid-uuid-subclass-slots
+        "Instantiate an instance of CLASS-TO-VERIFY as if by `cl:make-instance' and
+ensure that each slot of the class 'unicly:unique-universal-identifier is
+`cl:slot-exists-p' for the instantiated instance and that their default
+`cl:slot-value' is `cl:zerop', if so return CLASS-TO-VERIFY, if not, an error is
+signaled.~%~@
+:EXAMPLE~%
+ \(%verify-valid-uuid-subclass-slots 'unique-universal-identifier\)~%~@
+:NOTE The evaluation of `cl:make-instance' should finalize CLASS-TO-VERIFY if it is not already.~%~@
+:NOTE This function is evaluated _after_ `unicly::%verify-valid-uuid-subclass'
+by `unicly::%verify-valid-subclass-and-slots' and is not evaluated when class
+CLASS-TO-VERIFY is not a valid subclass of the class `unicly::unique-universal-identifier'~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%verify-valid-subclass-and-slots
+"Return SUBCLASS-TO-VERIFY when SUBCLASS-TO-VERIFY satisfies both:~%
+ `unicly::%verify-valid-uuid-subclass-type' `unicly::%verify-valid-uuid-subclass-slots'~%~@
+If not, an error is signaled.~%~@
+SUBCLASS-TO-VERIFY is a symbol designating a class which subclasses the class `unicly:unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(%verify-valid-subclass-and-slots 'indexable-uuid\) ; assuming it exists~%
+ \(null \(ignore-errors \(%verify-valid-subclass-and-slots 'unique-universal-identifier\)\)\)~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%make-uuid-from-string-extended-null-string-error
+        "Return MAYBE-VALID-UUID-HEX-STRING-36 if it is not `cl:string=' the constant `unicly::+uuid-null-string+'.~%~@
+MAYBE-VALID-UUID-HEX-STRING-36 is a string of type `unicly::uuid-string-36'.~%~@
+:EXAMPLE~%
+ \(%make-uuid-from-string-extended-null-string-error \"eea1105e-3681-5117-99b6-7b2b5fe1f3c7\"\)~%
+ \(%make-uuid-from-string-extended-null-string-error \"not-a-valid-uuid-string-36\"\)~%
+ \(null \(ignore-errors \(%make-uuid-from-string-extended-null-string-error \"00000000-0000-0000-0000-000000000000\"\)\)\)~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%make-uuid-from-byte-array-extended-null-array-error
+        "Return MAYBE-VALID-UUID-BYTE-ARRAY if it is of type of type
+`unicly:uuid-byte-array-16' without without all octets `cl:zerop', if not an
+error is signaled.~%~@
+:EXAMPLE~%
+ \(%make-uuid-from-byte-array-extended-null-array-error \(uuid-to-byte-array \(make-v4-uuid\)\)\)~%
+ \(%make-uuid-from-byte-array-extended-null-array-error \(uuid-byte-array-16-zeroed\)\)~%
+ \(null 
+  \(ignore-errors 
+    \(%make-uuid-from-byte-array-extended-null-array-error 
+     \(make-array 3 :element-type 'uuid-ub8 :initial-contents #\(255 255 255\)\)\)\)\)~%
+ \(null \(ignore-errors \(%make-uuid-from-byte-array-extended-null-array-error \(uuid-byte-array-16-zeroed\)\)\)\)~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc '%make-uuid-from-bit-vector-extendable-bv-zeroed-error
+"Return MAYBE-VALID-UUID-BIT-VECTOR or error if it is `unicly::uuid-bit-vector-null-p'.~%~@
+:EXAMPLE~%
+ \(let \(\(zero-bits \(uuid-bit-vector-128-zeroed\)\)\)
+    \(setf \(sbit zero-bits 0\) 1\)
+    \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error zero-bits\)\)~%~@
+Following each fail succesfully:~%
+ \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error \(make-array 129 :element-type 'bit :initial-element 1\)\)~%
+ \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error \(make-array 129 :element-type 'bit :initial-element 1\)\)~%
+ \(%make-uuid-from-bit-vector-extendable-bv-zeroed-error \(make-array 16 :element-type 'bit\)\)~%
+:SEE-ALSO `<XREF>'.~%")
+
+(fundoc 'def-make-uuid-extend-class-fun
+"Define functions which provide a the equivalent of the Unicly uuid API for
+subclasses of the class `unicly:unique-universal-identifier'.~%~@
+MAKE-EXTENDED-SUFFIX is a non-quoted symbol which is appended to the
+symbol-name of each defined function.~%~@
+EXTENDED-CLASS is a non-quoted which designates a valid subclass of the class
+`unicly:unique-universal-identifier'.~%~@
+Following table outlines the correspondence of extended functions defined
+with their standard Unicly counterparts:~%
+ Extended Unicly API function   Standard Unicly API function~%
+ make-v3-uuid-<FOO>              `make-v3-uuid'
+ make-v4-uuid-<FOO>              `make-v4-uuid'
+ make-v5-uuid-<FOO>              `make-v5-uuid'
+ make-uuid-from-string-<FOO>     `make-uuid-from-string'
+ make-uuid-from-byte-array-<FOO> `uuid-from-byte-array'
+ make-uuid-from-bit-vector-<FOO> `uuid-from-bit-vector'~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+;;; ==============================
+
+(generic-doc #'uuid-print-bytes
+             "Print the bytes of UUID in a format suitable to its class to STREAM.~%~@
+UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
+STREAM is an output-stream.~%~@
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")
+
+(generic-doc #'uuid-print-bytes-to-string
+ "Print the bytes of UUID in a format suitable to its class to a string.~%~@
+When keyword STRING-OR-CHAR-TYPE is non-nil specializing methods may provide opmitimizations around this arg.~%~@
+:SEE-ALSO `uuid-print-bytes'.~%")
+
+(generic-doc #'uuid-princ-to-string
+"Return string representation of UUID-INSTANCE as if by `cl:princ-to-string'.~%~@
+:SEE-ALSO `uuid-print-bytes-to-string', `uuid-print-bytes'.~%")
+
+(generic-doc  #'uuid-print-bit-vector
+ "Print the bit-vector representation of UUID in a format suitable to its class to STREAM.~%~@
+UUID an object representing an instance of `unique-universal-identifier' class or subclass.~%~@
+STREAM is an output-stream.~%~@
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")
+
+(generic-doc #'uuid-eql
+             "Whether object UUID-A is eql UUID-B.~%~@
+:EXAMPLE~%
+ \(uuid-eql \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+           \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)~%
+ \(uuid-eql \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+           \(make-v5-uuid *uuid-namespace-dns* \"bubbA\"\)\)~%
+ \(uuid-eql \"bubb\" \"bobby\"\)~%
+ \(uuid-eql *uuid-null-uuid* *uuid-null-uuid*\)~%
+ \(uuid-eql *uuid-null-uuid* \(make-null-uuid\)\)~%
+ \(uuid-eql \(make-null-uuid\) *uuid-null-uuid*\)~%
+ \(uuid-eql \(make-null-uuid\) \(%make-null-uuid-loadtime\)\)~%
+ \(uuid-eql \(make-null-uuid\) \(%make-null-uuid-loadtime\)\)~%
+ \(uuid-eql \(make-null-uuid\) \(make-instance 'unique-universal-identifier-null\)\)~%
+ \(uuid-eql \(make-instance 'unique-universal-identifier-null\) \(make-instance 'unique-universal-identifier-null\)\)~%
+ \(uuid-eql \(make-instance 'unique-universal-identifier-null\) \(make-null-uuid\)\)~%
+ \(uuid-eql \(make-instance 'unique-universal-identifier\) \(make-null-uuid\)\)~%~@
+:NOTE When either UUID-A or UUID-B is an instance of the class
+`unicly::unique-universal-identifier-null' they are only considered to be
+`unicly:uuid-eql' if both objects are `cl:eql' the value of special variable
+`unicly::*uuid-null-uuid*'.~%~@
+:SEE-ALSO `unique-universal-identifier-p'.~%")
+
+(generic-doc #'unique-universal-identifier-p
+             "Whether MAYBE-UUID-INSTANCE is a unique-universal-identifier.~%~@
+Return T if argument is a class instance of `unique-universal-identifier' or
+one of its subclasses.~%~@
+:EXAMPLE~%
+ \(unique-universal-identifier-p *uuid-namespace-dns*\)~%
+ \(unique-universal-identifier-p \(uuid-to-bit-vector *uuid-namespace-dns*\)\)~%
+ \(unique-universal-identifier-p t\)~%~@
+:SEE-ALSO `uuid-eql', `unicly::unique-universal-identifier-null-p'.~%")
+
+(method-doc #'uuid-print-bytes nil '(t unique-universal-identifier)
+"Print the raw bytes of UUID in hexadecimal format to STREAM.~%~@
+UUID is an instance of `unique-universal-identifier' class.~%~@
+STREAM is an output-stream.~%~@
+Output of return value has the format:~%
+ 6ba7b8109dad11d180b400c04fd430c8~%~@
+:EXAMPLE~%
+ \(uuid-print-bytes nil \(make-v4-uuid\)\)~%
+ \(uuid-print-bytes t \(make-v4-uuid\)\)~%~@
+:NOTE Per RFC4122 Section 3. \"Namespace Registration Template\" 
+ ,----
+ | The hexadecimal values \"a\" through \"f\" are output as
+ | lower case characters and are case insensitive on input.
+ `----~%~@
+:SEE-ALSO `uuid-print-bytes-to-string'.~%")
+
+(method-doc #'uuid-print-bytes-to-string nil '(unique-universal-identifier)
+            "Print bytes of UUID in hexadecimal representation to a `uuid-string-32'.~%~@
+Keyword STRING-OR-CHAR-TYPE is non-nil it is a string or the symbol 'base-char or 'character.
+When it is `cl:stringp' and satisfies `string-with-fill-pointer-p'
+print hexadecimal representation of bytes to STRING.
+Default method speciaclized on instances of class `unique-universal-identifier'.
+:EXAMPLE~%
+ \(uuid-print-bytes-to-string \(make-v4-uuid\)\)~%
+ \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\) :upcase t\)
+ \(let \(\(fp-string \(make-array 11 
+                              :element-type 'base-char 
+                              :fill-pointer 11 
+                              :initial-contents \"UUID-BYTES:\"\)\)\)
+   \(format fp-string \"~~%\"\)
+   \(uuid-print-bytes-to-string \(make-v4-uuid\) fp-string\)\)~%
+ \(type-of
+  \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                              :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)
+                              :upcase t\)\)
+ ;=> \(SIMPLE-BASE-STRING 32\)~%
+ \(type-of
+  \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                              :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)
+                              :upcase t\)\)
+ ;=> \(SIMPLE-ARRAY CHARACTER \(32\)\)~%
+ \(type-of
+  \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                              :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)\)\)
+ ;=> \(AND \(VECTOR CHARACTER 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of
+  \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                              :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)\)\)
+ ;=> \(AND \(BASE-STRING 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                                      :string-or-char-type 'character 
+                                      :upcase t\)\)
+ ;=> \(SIMPLE-ARRAY CHARACTER \(32\)\)~%
+ \(type-of \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\) 
+                                      :string-or-char-type 'base-char
+                                      :upcase t\)\)
+ ;=> \(SIMPLE-BASE-STRING 32\)~%
+ \(type-of \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                                      :string-or-char-type 'character \)\)
+ ;=> \(AND \(VECTOR CHARACTER 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)
+                                      :string-or-char-type 'base-char \)\)
+ ;=> \(AND \(BASE-STRING 32\) \(NOT SIMPLE-ARRAY\)\)~%~@
+:NOTE Per RFC4122 Section 3. \"Namespace Registration Template\" 
+ ,----
+ | The hexadecimal values \"a\" through \"f\" are output as
+ | lower case characters and are case insensitive on input.
+ `----~%~@
+:SEE-ALSO `uuid-print-bytes', `uuid-print-bit-vector', `uuid-princ-to-string'.~%")
+
+(method-doc #'uuid-print-bytes-to-string nil '(vector)
+          "Print the byte-array representation of UUID in a format suitable to its class to STREAM.~%~@
+UUID is an object of type `uuid-byte-array-16' representang of an instance of
+`unique-universal-identifier' class or subclass.
+Keyword STRING-OR-CHAR-TYPE is non-nil it is a string or the symbol 'base-char or 'character.~%~@
+When it is `cl:stringp' and satisfies `string-with-fill-pointer-p' print the
+UUID's hexadecimal byte representation to STRING.~%~@
+:EXAMPLE~%~@
+ \(uuid-print-bytes-to-string 
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
+ ;=> \"eea1105e3681511799b67b2b5fe1f3c7\"~%
+ \(uuid-print-bytes-to-string 
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+  :upcase t\)
+ ;=> \"EEA1105E3681511799B67B2B5FE1F3C7\"~%
+ \(uuid-print-bytes-to-string   
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+  :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)\)
+ ;=> \"eea1105e3681511799b67b2b5fe1f3c7\"~%
+ \(uuid-print-bytes-to-string   
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+  :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)\)
+ ;=> \"eea1105e3681511799b67b2b5fe1f3c7\"~%
+ \(uuid-print-bytes-to-string   
+  \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+  :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)
+  :upcase t\)
+ ;=> \"EEA1105E3681511799B67B2B5FE1F3C7\"~%
+ \(type-of \(uuid-print-bytes-to-string   
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)
+           :upcase t\)\)
+ ;=> \(SIMPLE-ARRAY CHARACTER \(32\)\)~%
+ \(type-of \(uuid-print-bytes-to-string   
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)
+           :upcase t\)\)
+ ;=> \(SIMPLE-BASE-STRING 32\)~%
+ \(type-of \(uuid-print-bytes-to-string   
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type \(make-array 32 :element-type 'character :fill-pointer 0\)\)\)
+ ;=> \(AND \(VECTOR CHARACTER 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string   
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type \(make-array 32 :element-type 'base-char :fill-pointer 0\)\)\)
+ ;=> \(AND \(BASE-STRING 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string 
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)\)
+ ;=> \(AND \(BASE-STRING 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string 
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type 'character\)\)
+ ;=> \(AND \(VECTOR CHARACTER 32\) \(NOT SIMPLE-ARRAY\)\)~%
+ \(type-of \(uuid-print-bytes-to-string 
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type 'character
+           :upcase t\)\)
+ ;=> \(SIMPLE-ARRAY CHARACTER \(32\)\)~%
+ \(type-of \(uuid-print-bytes-to-string 
+           \(uuid-to-byte-array \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+           :string-or-char-type 'base-char
+           :upcase t\)\)
+ ;=> \(SIMPLE-BASE-STRING 32\)~%
+:SEE-ALSO `<XREF>'.~%")
+
+(method-doc #'uuid-print-bit-vector nil #+:sbcl '(simple-bit-vector) #-:sbcl '(bit-vector t)
+"Print the bit-vector reprsentation of UUID to STREAM.~%~@
+UUID should be an object of type `uuid-bit-vector-128', an error is signaled if not.~%~@
+:EXAMPLE~%
+ \(uuid-print-bit-vector nil (uuid-bit-vector-128-zeroed))~%
+ \(find-method #'uuid-print-bit-vector nil '\(t simple-bit-vector\)\)~%~@
+:SEE-ALSO `uuid-to-bit-vector'.~%")
+
+(method-doc #'uuid-print-bit-vector nil '(unique-universal-identifier)
+"Print the `uuid-bit-vector-128' representation UUID to STREAM.~%~@
+UUID is an instance of class `unique-universal-identifier'.~%~@
+:EXAMPLE~%
+ \(uuid-print-bit-vector \(make-v4-uuid\) nil\)~%
+ \(find-method #'uuid-print-bit-vector nil '\(t unique-universal-identifier\)\)~%~@
+:SEE-ALSO `uuid-princ-to-string'.~%")
+
+(method-doc #'uuid-print-bit-vector nil '(unique-universal-identifier-null)
+ "If UUID is `unique-universal-identifier-null-p' print it's bit-vector representation.~%~@
+If not, an error is signaled.~%~@
+:EXAMPLE~%
+ \(uuid-print-bit-vector \(make-null-uuid\) nil\)~%~@
+;; Following fails successfully:~%
+ \(uuid-print-bit-vector \(make-instance 'unique-universal-identifier-null\) nil\)~%
+ \(find-method \(#'uuid-print-bit-vector\) nil '\(unique-universal-identifier-null\)\)~%~@
+:NOTE Only the null-UUID created as if by `make-null-uuid' may have its
+uuid-bit-vector-128 representation printed with this method.
+IOW, The results are unspecified if and attempt is made to to create null uuid objects as if by:~%
+ \(make-instance 'unique-universal-identifier-null\)~%~@
+:SEE-ALSO `<XREF>'.~%")
+
+(method-doc #'cl:print-object  nil '(unique-universal-identifier t)
+            "Print instance of class `unicly:unique-universal-identifier' to STREAM in string representation.~%
+:EXAMPLE~%
+ \(print-object \(make-v3-uuid *uuid-namespace-dns* \"bubba\"\) nil\)~%
+ \(print-object \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\) nil\)~%
+ \(print-object \(make-v4-uuid\) nil\)~%
+ \(print-object \(make-null-uuid\) nil\)~%~@
+:SEE-ALSO `unicly:uuid-print-bytes', `unicly:uuid-princ-to-string',
+`unicly:uuid-print-bit-vector', `unicly:uuid-print-bytes-to-string'.~%")
 
 
 ;;; ==============================
