@@ -48,6 +48,7 @@ unicly.lisp
 LICENSE.txt
 README
 LISPWORKS
+make-unicly-etags.sh
 unicly-move-to-git.sh"
 
 cd $UNICLY_SRC
