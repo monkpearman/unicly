@@ -4,21 +4,19 @@
 
 
 (in-package #:unicly)
-;; *package*
 
 (defun %def-uuid-format-and-intern-symbol (format-string format-arg)
   (let ((generated-name (format nil (string-upcase format-string) format-arg)))
     (intern generated-name (find-package "UNICLY"))))
 
 (defun %def-uuid-format-and-intern-symbol-type-predicate (type-symbol-or-string)
-  (let ((generated-name (format nil "~A-P" (string-upcase type-symbol-or-string)))) 
+  (let ((generated-name (format nil "~A-P" (string-upcase type-symbol-or-string))))
     (intern generated-name (find-package "UNICLY"))))
 
 (defun %def-uuid-format-and-intern-symbol-type-checker (type-symbol-or-string)
-  (let ((generated-name (format nil "~A-CHECK-TYPE" (string-upcase type-symbol-or-string)))) 
+  (let ((generated-name (format nil "~A-CHECK-TYPE" (string-upcase type-symbol-or-string))))
     (intern generated-name (find-package "UNICLY"))))
 
-;;; ==============================
 ;;; Following macros expanded in :FILE unicly/unicly-types.lisp
 ;;; `def-uuid-type-definer', `def-uuid-unsigned-byte-size'
 ;;; `def-uuid-byte-array-length', `def-uuid-unsigned-byte-integer-length',
@@ -68,15 +66,15 @@
   ;; (macroexpand '(def-uuid-uuid-hex-string-length 12))
   `(def-uuid-type-definer uuid-hex-string-length "UUID-HEX-STRING-~D" ,hex-string-length))
 
-;; Define a type predicate for an existing type 
+;; Define a type predicate for an existing type
 (defmacro def-uuid-type-predicate-definer (predicate-name type-to-check)
-  ;; `(progn 
+  ;; `(progn
   ;;    (eval-when (:compile-toplevel)
   ;;      (declaim (inline ,predicate-name)))
   `(defun ,predicate-name (maybe-object-of-type)
        (declare (optimize (speed 3)))
        (typep maybe-object-of-type ',type-to-check)))
-    
+
 (defmacro def-uuid-type-check-definer (type-check-name name-predicate checked-type)
   `(defun ,type-check-name (checked-val)
        (declare (inline ,name-predicate)
@@ -91,7 +89,7 @@
   ;; (def-uuid-predicate-and-type-check-definer uuid-bit-vector-8)
   (let ((definer-interned-predicate-name  (%def-uuid-format-and-intern-symbol-type-predicate type-for-pred-and-check))
         (definer-interned-check-type-name (%def-uuid-format-and-intern-symbol-type-checker   type-for-pred-and-check)))
-    `(progn 
+    `(progn
        (def-uuid-type-predicate-definer ,definer-interned-predicate-name ,type-for-pred-and-check)
        (def-uuid-type-check-definer ,definer-interned-check-type-name ,definer-interned-predicate-name ,type-for-pred-and-check))))
 
@@ -113,7 +111,7 @@
        (declare (optimize (speed 3)))
        (the ,(cdr bv-int-size-and-type)
          (make-array (the ,(car bv-int-size-and-type) ,zeroed-size) :element-type 'bit :initial-element 0)))))
-;;
+
 (defmacro def-uuid-request-integer-bit-vector (def-name bit-offset bit-width)
   (let ((ub-declared-assembler
          (ecase bit-width
@@ -121,9 +119,9 @@
            (32  (cons 'uuid-assemble-ub32 'uuid-ub32))
            (16  (cons 'uuid-assemble-ub16 'uuid-ub16))
            ;; :NOTE This winds up creating an inline declartation for `cl:identity'... likely harmless.
-           (8   (cons 'identity 'uuid-ub8)))) 
+           (8   (cons 'identity 'uuid-ub8))))
         (bv-offsets (uuid-bit-vector-build-offsets bit-offset bit-width))
-        (bv-request-name 
+        (bv-request-name
          (%def-uuid-format-and-intern-symbol "%uuid_~@:(~A~)-request-bit-vector" def-name)))
     `(defun ,bv-request-name (bit-vector-128)
        (declare
@@ -131,31 +129,28 @@
         (uuid-bit-vector-128 bit-vector-128)
         (optimize (speed 3)))
        (uuid-bit-vector-128-check-type bit-vector-128)
-       (loop 
+       (loop
           for (a . b) of-type (uuid-ub8 . uuid-ub8 ) in ',bv-offsets
-          collect (loop 
+          collect (loop
                      with j of-type uuid-ub8 = 0
                      for x from a to b
                      do (setf j (logior (sbit bit-vector-128 x) (ash j 1)))
                      finally (return j)) into bytes
           finally (return (the ,(cdr ub-declared-assembler)
                             (apply #',(car ub-declared-assembler) bytes)))))))
-;;
+
 ;; (defmacro @uuid-bit-vector (bit-vector-type bit-vector index)
 ;;   `(sbit (the ,bit-vector-type ,bit-vector) ,index))
-;;
-;;; ==============================
 
 
 
 ;;; ==============================
 ;;; Following macros expanded in :FILE unicly/unicly-class.lisp
 ;;; `uuid-string-parse-integer', `uuid-svref-for-parse-integer', `def-indexed-hexstring-integer-parser'
-;;;
 (defmacro uuid-string-parse-integer (uuid-hex-string start end integer-type)
   ;; (macroexpand-1 '(uuid-string-parse-integer "6ba7b810-9dad-11d1-80b4-00c04fd430c8" 0 8 uuid-ub32))
   `(the ,integer-type (parse-integer ,uuid-hex-string :start ,start :end ,end :radix 16)))
-;;
+
 ;;; ==============================
 ;; (uuid-svref-for-parse-integer <VECTOR> <INDEX> <STRING-TYPE>)
 ;;
@@ -165,9 +160,9 @@
 ;;    4 uuid-hex-string-12))
 (defmacro uuid-svref-for-parse-integer (simple-vector-5 index string-type)
   `(the ,string-type (svref (the uuid-simple-vector-5 ,simple-vector-5) ,index)))
-;;
+
 ;;; ==============================
-;; (uuid-string-parse-integer 
+;; (uuid-string-parse-integer
 ;;  (uuid-svref-for-parse-integer <VECTOR> <INDEX> <STRING-TYPE>)
 ;;  <START> <END> <INTEGER-TYPE> )
 ;;
@@ -182,10 +177,10 @@
     `(defun ,generated-fun-name (hex-vector-5)
        (declare (uuid-simple-vector-5 hex-vector-5)
                 (optimize (speed 3)))
-       (uuid-string-parse-integer 
+       (uuid-string-parse-integer
         (uuid-svref-for-parse-integer hex-vector-5 ,vec-index ,string-type-at-index)
         ,string-start ,string-end ,string-integer-type))))
-;;
+
 ;;; ==============================
 
 

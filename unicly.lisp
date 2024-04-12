@@ -86,11 +86,7 @@
            (optimize (speed 3)  (debug 0)))
   ;; (or (and (or (= version 3) (= version 5)) version)
   ;; (error "arg VERSION is not integer 3 nor 5"))
-<<<<<<< HEAD
   #-:sbcl (etypecase version
-=======
-  #-:sbcl (etypecase version 
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
            ((mod 6) version))
   (unless (logbitp 1 (logcount version))
     (error "arg VERSION is not integer 3 nor 5"))
@@ -131,11 +127,7 @@
   ;; (let ((uuid-ba (the (values uuid-byte-array-16 &optional)
   ;;                  (uuid-get-namespace-bytes uuid-namespace-instance)))
   ;;       ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
-<<<<<<< HEAD
   ;;       (name-ba (%uuid-string-to-octets name)))
-=======
-  ;;       (name-ba (%uuid-string-to-octets name))) 
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
   ;;   (declare (type uuid-byte-array-16 uuid-ba)
   ;;            (type uuid-byte-array    name-ba))
   (multiple-value-bind (uuid-ba name-ba) (the (values uuid-byte-array-16 uuid-byte-array &optional)
@@ -356,11 +348,7 @@
                      :%uuid_node (the uuid-ub48 (random #xFFFFFFFFFFFF))))))
 
 (defun uuid-as-urn-string (stream uuid)
-<<<<<<< HEAD
   (declare (type STREAM-OR-BOOLEAN-OR-STRING-WITH-FILL-POINTER stream)
-=======
-  (declare (type STREAM-OR-BOOLEAN-OR-STRING-WITH-FILL-POINTER stream) 
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
            (type unique-universal-identifier uuid)
            (optimize (speed 3)))
   ;; :NOTE RFC4122 Section 3. "Namespace Registration Template"

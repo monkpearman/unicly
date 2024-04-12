@@ -16,11 +16,7 @@
 ;; *package*
 
 ;; `uuid-version-int'
-<<<<<<< HEAD
  (loop
-=======
- (loop 
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
     for x from 0 below 6
     for y = (typep x 'uuid-version-int)
     always y)
@@ -30,11 +26,7 @@
                         (loop for x from 2 below 7 collect x))
                 1 4)
         (list T T T))
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
  (equal (mapcar #'(lambda (x) (typep (uuid-version-uuid x) 'uuid-v3-4-or-5-int))
                 (list (make-v3-uuid *uuid-namespace-dns* "bubba")
                       (make-v4-uuid)
@@ -46,11 +38,7 @@
                         (loop for x from 2 below 7 collect x))
                 1 4)
         (list T NIL T))
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
  (equal (mapcar #'(lambda (x) (typep (uuid-version-uuid x) 'uuid-v3-or-5-int))
                 (list (make-v3-uuid *uuid-namespace-dns* "bubba")
                       (make-v4-uuid)
@@ -65,13 +53,8 @@
                     nconc (list (code-char x) (code-char y)) into alpha
                     finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
    (labels ((rand-no-zerop (range)
-<<<<<<< HEAD
             (loop
                for rand = (random range)
-=======
-            (loop 
-               for rand = (random range)  
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
                until (not (zerop rand))
                finally (return rand)))
             (random-string ()
@@ -79,19 +62,11 @@
                  repeat (rand-no-zerop 53)
                  for x = (schar alphabet (random 52)) collect x into rand
                  finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
-<<<<<<< HEAD
      (loop
         repeat 1000
         for rand   = (random-string)
         for uuid   = (make-v5-uuid (make-v4-uuid) rand)
         for ba     = (uuid-to-byte-array uuid)
-=======
-     (loop 
-        repeat 1000
-        for rand   = (random-string) 
-        for uuid   = (make-v5-uuid (make-v4-uuid) rand)
-        for ba     = (uuid-to-byte-array uuid)  
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
         for int    = (uuid-bit-vector-to-integer (uuid-to-bit-vector uuid))
         for ba-int = (uuid-integer-128-to-byte-array int)
         always (equalp ba-int ba))))
@@ -104,13 +79,8 @@
                     nconc (list (code-char x) (code-char y)) into alpha
                     finally (return (make-array 52 :element-type 'character :initial-contents alpha)))))
    (labels ((rand-no-zerop (range)
-<<<<<<< HEAD
               (loop
                  for rand = (random range)
-=======
-              (loop 
-                 for rand = (random range)  
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
                  until (not (zerop rand))
                  finally (return rand)))
             (random-string ()
@@ -118,11 +88,7 @@
                  repeat (rand-no-zerop 53)
                  for x = (aref alphabet (random 52)) collect x into rand
                  finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
-<<<<<<< HEAD
      (loop
-=======
-     (loop 
->>>>>>> b2d2fcaee3e256d0e6e4dd76bae994875c679490
         repeat 1000
         for uuid   = (make-v3-uuid (make-v4-uuid) (random-string))
         for ba     = (uuid-to-byte-array uuid)

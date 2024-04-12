@@ -6,10 +6,10 @@
 ;; Doing so would allow frobbing UUIDs representations according to which
 ;; ContextL layer is currently active.
 ;; :SEE (URL `http://nklein.com/software/unet/userial/')
+;;; ==============================
 
 
 (in-package #:unicly)
-;; *package*
 
 (declaim (inline uuid-valid-stream-p))
 (defun uuid-valid-stream-p (maybe-stream)
@@ -52,7 +52,7 @@
 ;;   (uuid-valid-stream-verify-octet-stream-for-input is))
 (defun uuid-valid-stream-verify-io-octet-type (maybe-octet-stream &key direction)
   (declare (type (member :input :output) direction))
-  (let* ((chk-stream 
+  (let* ((chk-stream
           (ecase direction
             (:output (uuid-valid-stream-verify-for-output maybe-octet-stream))
             (:input  (uuid-valid-stream-verify-for-input maybe-octet-stream))))
@@ -83,7 +83,7 @@
 ;;
 (defun uuid-deserialize-byte-array-bytes (stream-in)
   (uuid-valid-stream-verify-octet-stream-for-input stream-in)
-  (loop 
+  (loop
      with ba16 = (uuid-byte-array-16-zeroed)
      for ba16-idx from 0 below 16
      for byte-read = (read-byte stream-in nil 'EOF)
@@ -97,7 +97,7 @@
      finally (return ba16)))
 
 ;;; ==============================
-;; :TODO `deserialize-uuid'... 
+;; :TODO `deserialize-uuid'...
 ;; :NOTE Should there be a generic function which dispatches on the UUID's
 ;; representation , e.g. uuid-bit-vector-128, uuid-byte-array-20array-16,
 ;; unique-universal-identifier, uuid-string-32, uuid-string-36?
@@ -110,11 +110,11 @@
   (uuid-valid-stream-verify-octet-stream-for-output stream-out)
   (let ((ba16
          (the uuid-byte-array-16
-           (if (uuid-byte-array-16-p uuid-or-byte-array-16) 
+           (if (uuid-byte-array-16-p uuid-or-byte-array-16)
                uuid-or-byte-array-16
                (uuid-get-namespace-bytes uuid-or-byte-array-16)))))
     (declare (uuid-byte-array-16 ba16))
-    ;; (loop 
+    ;; (loop
     ;;    for byte-idx from 0 below 16
     ;;    do (write-byte (aref ba16 byte-idx) stream))
     (write-sequence ba16 stream-out :start 0 :end 16)))
@@ -132,14 +132,14 @@
 ;;   (let ((bv-return (uuid-bit-vector-128-zeroed)))
 ;;     (read-sequence bv-return stream-in :start 0 :end 127)
 ;;     bv-return))
-;; 
+;;
 ;; :NOTE Following is the equivalent using `cl:do' instead of `cl:loop'
 ;; (defun uuid-deserialize-bit-vector-bits (stream-in)
 ;;   (uuid-valid-stream-verify-octet-stream-for-input stream-in)
 ;;   (let ((bv (uuid-bit-vector-128-zeroed)))
 ;;     (do ((code (read-byte s nil 'EOF) (read-byte s nil 'EOF))
 ;;          (cnt 0 (1+ cnt)))
-;;         ((if (or (eql code 'EOF) (> cnt 128 )) 
+;;         ((if (or (eql code 'EOF) (> cnt 128 ))
 ;;              t
 ;;              (unless (typep code 'bit)
 ;;                (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
@@ -152,9 +152,9 @@
 ;;
 (defun uuid-deserialize-bit-vector-bits (stream-in)
   (uuid-valid-stream-verify-octet-stream-for-input stream-in)
-  (loop 
+  (loop
      with bv = (uuid-bit-vector-128-zeroed)
-     for cnt from 0 below 128 
+     for cnt from 0 below 128
      for byte-read = (read-byte stream-in nil 'EOF)
      if (eql byte-read 'EOF)
      do (error 'end-of-file :stream stream-in)
@@ -174,9 +174,9 @@
                        (uuid-to-bit-vector bv-or-uuid)
                        bv-or-uuid))))
     (declare (type uuid-bit-vector-128 bv-128))
-    ;; (loop 
+    ;; (loop
     ;;    ;; for bit-idx downfrom 127 to 0
-    ;;    for bit-idx from  0 below 128 
+    ;;    for bit-idx from  0 below 128
     ;;    do (write-byte (sbit bv-128 bit-idx) stream-out))
     (write-sequence bv-128 stream-out :start 0 :end 128)))
 
@@ -186,7 +186,7 @@
 ;; an object of type `uuid-bit-vector-128'.
 ;; INPUT-PATHNAME names an existing file with element-type `uuid-ub8'.
 ;; :EXAMPLE
-;;  (let* ((tmp (make-pathname :directory '(:absolute  "tmp") 
+;;  (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
 ;;                             :name "bitstream-test"))
 ;;         (v4     (uuid-to-bit-vector (make-v4-uuid)))
 ;;         (v4-io  (uuid-read-bit-vector-bits (uuid-write-bit-vector-bits v4 tmp))))
@@ -198,7 +198,6 @@
                          :if-does-not-exist if-does-not-exist
                          :element-type 'uuid-ub8)
     (uuid-deserialize-bit-vector-bits bv-in)))
-
 
 ;;; ==============================
 

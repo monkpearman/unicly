@@ -4,14 +4,12 @@
 
 
 (in-package #:unicly)
-;; *package*
 
 (declaim (inline uuid-byte-array-16-zeroed))
 (defun uuid-byte-array-16-zeroed ()
   (declare (optimize (speed 3)))
   (the uuid-byte-array-16
     (make-array (the uuid-bit-vector-16-length 16) :element-type 'uuid-ub8 :initial-element 0)))
-
 
 ;; (uuid-get-namespace-bytes  (uuid-princ-to-string (make-v5-uuid *uuid-namespace-dns* "bubba")))
 ;; (uuid-get-namespace-bytes (make-uuid-from-string "eea1105e-3681-5117-99b6-7b2b5fe1f3c7"))
@@ -37,7 +35,7 @@
                (type uuid-ub8  %uuid_clock-seq-and-reserved %uuid_clock-seq-low)
                (type uuid-ub48 %uuid_node)
                (inline uuid-disassemble-ub48 uuid-disassemble-ub32 uuid-disassemble-ub16))
-      (make-array 16 
+      (make-array 16
                   :element-type 'uuid-ub8
                   :initial-contents (multiple-value-call #'list
                                       (the (values uuid-ub8 uuid-ub8 uuid-ub8 uuid-ub8 &optional)
@@ -53,28 +51,26 @@
 
 ;;; ==============================
 ;; :NOTE UNICLY:UUID-GET-NAMESPACE-BYTES is equivalent to
-;; UUID:UUID-TO-BYTE-ARRAY we provide it here for congruence. 
+;; UUID:UUID-TO-BYTE-ARRAY we provide it here for congruence.
 ;; :SEE Bottom of file for our variation of the original definition.
-;; 
 (eval-when (:load-toplevel :execute)
-  (setf (fdefinition 'uuid-to-byte-array) 
+  (setf (fdefinition 'uuid-to-byte-array)
         (fdefinition 'uuid-get-namespace-bytes)))
 
 
 ;;; ==============================
 ;; :TODO Finish `uuid-byte-array-version'
 ;; :SEE ironclad:ub16ref/be for a fetcher to grab only the relevant portion of
-;; the `uuid-byte-array-16'. 
+;; the `uuid-byte-array-16'.
 ;; :SEE `uuid-request-integer'
 ;;  (uuid-request-integer <UUID-BYTE-ARRAY-16> <VERSION-BITS-OFFSET> <VERSION-BITS-LENGTH>)
-;;  
+;;
 ;; (defun uuid-byte-array-version (uuid-byte-array)
 ;;   (declare (uuid-byte-array-16 uuid-byte-array))
-;;   (let ((version-bits 
+;;   (let ((version-bits
 ;;          (uuid-request-integer <UUID-BYTE-ARRAY-16> <VERSION-BITS-OFFSET> <VERSION-BITS-LENGTH>)))
 ;;      { ... }
 ;;      ))
-
 
 ;;; ==============================
 ;; :NOTE Following modelled after `ironclad::octets-to-integer'
@@ -98,7 +94,7 @@
 (defun uuid-integer-128-to-byte-array (uuid-integer)
   (let ((octet-vec (make-array 16 :element-type 'uuid-ub8)))
     (declare (type uuid-byte-array-16 octet-vec))
-    (loop 
+    (loop
        for i from 15 downto 0
        for index from 0
        ;; do (setf (aref octet-vec index) (ldb (byte 8 (ash i 3)) uuid-integer))
@@ -128,34 +124,34 @@
 ;;         (push (list :!ba/int-ba-2 ba int-ba-2 (uuid-princ-to-string uuid)) inner-diff))
 ;;       (unless (null inner-diff)
 ;;         (push inner-diff diff)))))
-;; 
+;;
 ;; :NOTE Now using code adapted from ironclad::integer-to-octets instead.
-;; 
+;;
 ;; (defun uuid-integer-128-to-byte-array (uuid-integer)
 ;;   (declare (uuid-ub128 uuid-integer)
 ;;            (optimize (speed 3)))
-;;   (when (zerop uuid-integer) 
+;;   (when (zerop uuid-integer)
 ;;     (return-from uuid-integer-128-to-byte-array (uuid-byte-array-16-zeroed)))
 ;;   (let* ((octet-count (nth-value 0 (truncate (+ (integer-length uuid-integer) 7) 8)))
 ;;          (bit-count   (ash octet-count 3))
 ;;          (ba-out      (uuid-byte-array-16-zeroed))
 ;;          (chk-byte   '()))
 ;;     (declare (uuid-byte-array-16 ba-out))
-;;     (dotimes (cnt 16 
+;;     (dotimes (cnt 16
 ;;               (if (evenp octet-count)
 ;;                   (the uuid-byte-array-16 ba-out)
 ;;                   (loop
 ;;                      with offset = ba-out
 ;;                      with new = (the uuid-byte-array-16 (uuid-byte-array-16-zeroed))
-;;                      for x across offset 
+;;                      for x across offset
 ;;                      for y from 1 below 16
 ;;                      do (setf (aref new y) x)
 ;;                      finally (return (the uuid-byte-array-16 new)))))
 ;;       (setf chk-byte (- bit-count (ash (1+ cnt) 3)))
 ;;       (if (minusp chk-byte)
-;;           (setf (aref ba-out cnt) 
+;;           (setf (aref ba-out cnt)
 ;;                 (ldb (byte 8 0) uuid-integer))
-;;           (setf (aref ba-out cnt) 
+;;           (setf (aref ba-out cnt)
 ;;                 (ldb (byte 8 chk-byte) uuid-integer))))))
 ;;; ==============================
 
