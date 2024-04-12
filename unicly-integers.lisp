@@ -11,7 +11,7 @@
 ;; ironclad:ub64ref/le buffer index => value
 ;;
 ;; This family of functions accesses an unsigned 16-bit, 32-bit or 64-bit value
-;; stored in little-endian order starting at index in array. 
+;; stored in little-endian order starting at index in array.
 ;; array must be a (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (*)). These functions are SETFable.
 ;;
 ;; ironclad:ub16ref/be buffer index => value
@@ -44,7 +44,7 @@
 ;;
 (define-compiler-macro uuid-request-integer (&whole form array offset length &key little-endian sign-extend)
   ;; :NOTE the 4 is an (unsigned-byte 32) which isn't a fixnum on x86-32
-  (if (and (member length '(1 2 4)) 
+  (if (and (member length '(1 2 4))
            (member little-endian '(t nil))
            (member sign-extend '(t nil)))
       `(let* (,@(loop
@@ -80,12 +80,12 @@
     (setf b4 (ldb (byte 8 16) (the uuid-ub24 u48)))
     (setf b5 (ldb (byte 8  8) (the uuid-ub24 u48)))
     (setf b6 (ldb (byte 8  0) (the uuid-ub24 u48)))
-    (locally 
+    (locally
         (declare (uuid-ub8 b1 b2 b3 b4 b5 b6))
       (values b1 b2 b3 b4 b5 b6))))
 
 ;;; ==============================
-;; :SOURCE Zach Beane's usenet-legend/io.lisp 
+;; :SOURCE Zach Beane's usenet-legend/io.lisp
 ;; `uuid-disassemble-ub32' :WAS `disassemble-u32'
 ;; `uuid-assemble-ub32' :WAS `assemble-u32'
 (declaim (inline uuid-disassemble-ub32))
@@ -143,7 +143,7 @@
 ;; 255, 255, 255, 255
 
 ;(declare (inline uuid-assemble-ub16))
-(defun uuid-assemble-ub16 (b1 b2) 
+(defun uuid-assemble-ub16 (b1 b2)
   (declare (type uuid-ub8 b1 b2)
            (optimize (speed 3)))
   (logand #xFFFF

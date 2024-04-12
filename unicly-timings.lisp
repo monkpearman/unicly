@@ -3,7 +3,6 @@
 ;;; ==============================
 
 
-
 ;;; ==============================
 ;; Most of the loops included below are built to readily swap in
 ;; with the equivalent uuid.lisp function
@@ -21,9 +20,7 @@
 ;;; ==============================
 
 (in-package #:cl-user)
-
 ;; (in-package #:unicly)
-;; *package*
 
 
 #| 

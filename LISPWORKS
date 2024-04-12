@@ -2,7 +2,6 @@
 ;;; :FILE /unicly/LISPWORKS
 ;;; ==============================
 
-;;; ==============================
  I'm at a bit of a loss about what to do with LispWorks strings...
  Advice/Patches welcome!
  Following are some of my notes as I tried to track down differences across

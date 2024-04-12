@@ -4,15 +4,12 @@
 
 
 (in-package #:unicly)
-;; *package*
-
-;; %uuid-uuid-version-if
 
 (declaim (inline %uuid-uuid-version-if))
 (defun %uuid-uuid-version-if (uuid-time-high-and-version uuid)
   ;; :TEST (signals succesfully)
   ;; (let ((v4uuid (make-v4-uuid)))
-  ;;   (setf (slot-value v4uuid '%uuid_time-high-and-version) #xFFFF) 
+  ;;   (setf (slot-value v4uuid '%uuid_time-high-and-version) #xFFFF)
   ;;   (%uuid-uuid-version-if (slot-value v4uuid '%uuid_time-high-and-version) v4uuid))
   (declare (type unique-universal-identifier uuid)
            (type uuid-ub16 uuid-time-high-and-version)
@@ -24,8 +21,8 @@
 ;; ,---- RFC4122 4.1.3. Subsection "Version"
 ;; | The version number is in the most significant 4 bits of the time
 ;; | stamp (bits 4 through 7 of the time_hi_and_version field).
-;; | 
-;; |    15    14    13    12 
+;; |
+;; |    15    14    13    12
 ;; |  Msb0  Msb1  Msb2  Msb3   Version  Description
 ;; |     0     0     0     1        1     The time-based version specified in this document.
 ;; |     0     0     1     0        2     DCE Security version, with embedded POSIX UIDs.
@@ -50,7 +47,7 @@
   (when (uuid-bit-vector-128-p uuid)
     (return-from uuid-version-uuid (uuid-version-bit-vector uuid)))
   ;;
-  (locally 
+  (locally
       (declare (type unique-universal-identifier uuid))
     (when (%unique-universal-identifier-null-p uuid)
       (return-from uuid-version-uuid (values 0 'null-uuid)))

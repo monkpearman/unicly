@@ -15,7 +15,6 @@
 
 
 (in-package #:unicly)
-;; *package*
 
 (define-condition uuid-error (error)
   ()
@@ -23,7 +22,7 @@
 
 (define-condition uuid-simple-error (uuid-error simple-error)
   ()
-  (:default-initargs :format-control "UUID-SIMPLE-ERROR" 
+  (:default-initargs :format-control "UUID-SIMPLE-ERROR"
                      :format-arguments nil)
   (:documentation "Conditions for simple unicly errors."))
 
@@ -44,7 +43,7 @@
                                          uste-datum uste-type-of uste-expect)))
                (apply #'format uste-stream uste-fmt-and-args))))
   (:default-initargs :format-control "UUID-SIMPLE-TYPE-ERROR~%~Tgot-val: ~S~%~Ttype-of:  ~S~%~Texpected: ~S~T")
-  (:documentation 
+  (:documentation
    #.(format nil "Conditions for failed Unicly type declarations.~%~@
                   Keyword FORMAT-CONTROL has a default-initarg which displays as:~%~% ~
                   UUID-SIMPLE-TYPE-ERROR~%~Tgot-val: <GOT>~%~Ttype-of: <DATUM-TYPE-OF>~%~Texpected: <EXPECTED-TYPE>~%~%~
@@ -69,16 +68,16 @@
     :reader uuid-slot-unbound-object))
   (:report (lambda (condition stream)
              (let* ((uuid-obj (uuid-slot-unbound-object condition))
-                    (uuid-obj-type (or (and uuid-obj 
+                    (uuid-obj-type (or (and uuid-obj
                                             (type-of uuid-obj))
                                        (string 'UNIQUE-UNIVERSAL-IDENTIFIER)))
-                    (uuid-obj-slot (or (uuid-slot-unbound-name condition) 
+                    (uuid-obj-slot (or (uuid-slot-unbound-name condition)
                                        (make-string 0 :initial-element #\NUL))))
                (format stream "UUID object has slot not `cl:slot-boundp'~%~T~
                                OBJECT-TYPE: ~S~%~T~
                                OBJECT-SLOT: ~A~%"
                        uuid-obj-type uuid-obj-slot))))
-  (:documentation 
+  (:documentation
    #.(format nil
    "Condition for `unicly:unique-universal-identifier' objects with unbound slots.~%~@
 UUID-SLOT-UNBOUND-NAME is a symbol naming the unbound slot in object.~%~@
@@ -86,13 +85,13 @@ UUID-SLOT-UNBOUND-OBJECT is the uuid instance of with the unbound slot.~%~@
 :EXAMPLE~%
  \(let \(\(v4uuid \(make-v4-uuid\)\)\)
    \(slot-makunbound v4uuid '%uuid_time-high-and-version\)
-   \(error 'uuid-slot-unbound-error 
+   \(error 'uuid-slot-unbound-error
           :uuid-slot-unbound-name '%uuid_time-high-and-version
           :uuid-slot-unbound-object v4uuid\)\)~%~@
 :SEE-ALSO `<XREF>'.~%")))
 
 (define-condition uuid-bit-48-error (uuid-error)
-  ((uuid-bit-48-error-datum 
+  ((uuid-bit-48-error-datum
     :initarg :uuid-bit-48-error-datum
     :reader  uuid-bit-48-error-datum)
    (uuid-bit-48-error-expected-type
@@ -102,7 +101,7 @@ UUID-SLOT-UNBOUND-OBJECT is the uuid instance of with the unbound slot.~%~@
              (declare (type stream stream)
                       (type condition condition))
              (let* ((bv-or-uuid (uuid-bit-48-error-datum condition))
-                    (bv-or-uuid-fmt 
+                    (bv-or-uuid-fmt
                      (etypecase bv-or-uuid
                        ;; The use of cl:type-of in the first case clause below
                        ;; is to account for situations where user code has
@@ -113,22 +112,22 @@ UUID-SLOT-UNBOUND-OBJECT is the uuid instance of with the unbound slot.~%~@
                        ;; our report around uuid-bit-48-error-datum may not
                        ;; carry the correct type info for the printed object
                        ;; were reporting.
-                       (unique-universal-identifier 
-                        (format nil "got uuid object of type ~S:~%~4@T~S" 
+                       (unique-universal-identifier
+                        (format nil "got uuid object of type ~S:~%~4@T~S"
                                 (type-of bv-or-uuid) bv-or-uuid))
                        ;; :TODO
-                       ;; (uuid-byte-array-16 (cons 'uuid-byte-array-16 (...)) 
+                       ;; (uuid-byte-array-16 (cons 'uuid-byte-array-16 (...))
                        ;;
-                       (uuid-bit-vector-128 
+                       (uuid-bit-vector-128
                         (format nil "got UUID-BIT-VECTOR-128 with value of subseq [48,63]:~%~4@T~S"
                                 (subseq bv-or-uuid 48 63)))))
-                    (fmt-cntl 
+                    (fmt-cntl
                      (format nil "UUID object with bit 48 not `cl:zerop'~%~T~
                                   per RFC4122 section 4.1.3 it should always be of type: ~S~%~T~
                                   ~A~%"
                              (uuid-bit-48-error-expected-type condition) bv-or-uuid-fmt)))
                (format stream fmt-cntl))))
-  (:documentation 
+  (:documentation
    #.(format nil
              "Condition for uuid related objects whose bit 48 is not `cl:zerop'.~%~@
 UUID-BIT-48-ERROR-DATUM is the object of the offending error.~%~% ~
@@ -168,8 +167,6 @@ the equivalent UUID API esp. where it may create spurious uuid objects by way of
 time-high-and-version slot-value.  It is wrong to propogate the errors of that implementations
 API further and we make some attempt to identify them.~%~@
 :SEE-ALSO `uuid-version-uuid', `uuid-version-bit-vector'.~%")))
-
-
 
 
 ;;; ==============================
