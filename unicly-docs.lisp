@@ -2,9 +2,7 @@
 ;;; :FILE unicly/unicly-docs.lisp
 ;;; ==============================
 
-
 (in-package #:unicly)
-;; *package*
 
 
 ;;; ==============================
