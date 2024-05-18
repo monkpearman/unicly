@@ -292,5 +292,17 @@
      (unicly::def-uuid-from-bit-vector-extendable ,make-extended-suffix ,extended-class t)
      (values)))
 
+
+;;; ==============================
+
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; show-trailing-whitespace: t
+;; mode: lisp-interaction
+;; package: unicly
+;; End:
+
+
 ;;; ==============================
 ;;; EOF

@@ -54,7 +54,7 @@
                   :EXAMPLE~%~% ~
                  \(error 'uuid-simple-type-error :datum \"bubba\" :expected-type 'simple-bit-vector\)~%
                  \(uuid-simple-type-error :datum \"bubba\" :expected-type 'simple-bit-vector\)~%")))
-;;
+
 (defun uuid-simple-type-error (&key datum expected-type)
   (declare (optimize (speed 3)))
   (error 'uuid-simple-type-error :datum datum :expected-type expected-type))

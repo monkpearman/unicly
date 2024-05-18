@@ -4,12 +4,12 @@
 
 
 (in-package #:unicly)
-;; *package*
 
 
 ;;; ==============================
-;; Following are normally loaded from my utils system, 
-;; but you prob. don't want all of that :)
+;; Following are normally loaded from my utils system :MON-SYSTEMS
+;; but others probably don't want all of that:
+;;
 ;; string-all-hex-char-p string-not-null-or-empty-p hexadecimal-char-p
 ;; string-or-null hexadecimal-char not-null string-not-null-or-empty
 ;; string-not-empty string-empty string-or-null *hexadecimal-chars*
@@ -17,14 +17,15 @@
 ;; string-with-fill-pointer vector-with-fill-pointer-p
 ;;
 ;; type-specifier-p doc-set fundoc vardoc typedoc
+;;
 ;;; ==============================
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defvar *hexadecimal-chars* 
+  (defvar *hexadecimal-chars*
     '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9
       #\A #\B #\C #\D #\E #\F #\a #\b #\c #\d #\e #\f)))
 
-(deftype hexadecimal-char () 
+(deftype hexadecimal-char ()
   #-:lispworks `(and standard-char (member ,@*hexadecimal-chars*))
   #+:lispworks `(and char-compat   (member ,@*hexadecimal-chars*)))
 
@@ -33,15 +34,15 @@
 
 (deftype string-empty ()
   #-:lispworks '(and string-compat
-                 (or 
-                  (array character (0)) ;; <- (vector character 0)
-                  (array nil (0)) ;; <- (vector nil 0) ;; :NOTE This is not be a valid type-spec on LispWorks
-                  (array base-char (0)))) ;; <- (base-string 0)
+                 (or
+                  (array character (0))    ; <- (vector character 0)
+                  (array nil (0))          ; <- (vector nil 0) ;; :NOTE This is not be a valid type-spec on LispWorks
+                  (array base-char (0))))  ; <- (base-string 0)
   #+:lispworks '(and (or string-compat  simple-string-compat)
                  (satisfies %lw-string-zerop)))
 
 (defun %lw-string-zerop (string)
-  (declare 
+  (declare
    (string-compat string)
    (optimize (speed 3)))
   (zerop (length string)))
@@ -49,11 +50,11 @@
 (deftype string-not-empty ()
   '(and string-compat (not string-empty)))
 
-(deftype string-or-null () 
-  #-:lispworks '(or 
+(deftype string-or-null ()
+  #-:lispworks '(or
                  null
-                 (array character (*)) ;; (vector character)
-                 (array nil (*))       ;; (vector nil)
+                 (array character (*)) ; (vector character)
+                 (array nil (*))       ; (vector nil)
                  (array base-char (*)))
   #+:lispworks (or null string-empty))
 
@@ -68,9 +69,9 @@
 (declaim (inline simple-string-compat-p))
 (defun simple-string-compat-p (maybe-simple-string-compat)
   (declare (optimize (speed 3)))
-  #+:lispworks 
+  #+:lispworks
   (typep maybe-simple-string-compat 'simple-string-compat)
-  #-:lispworks 
+  #-:lispworks
   (simple-string-p maybe-simple-string-compat))
 
 (declaim (inline hexadecimal-char-p))
@@ -93,18 +94,18 @@
   (when (null maybe-hex-string)
     (return-from string-all-hex-char-p nil))
   (the boolean
-    (and (locally 
-             (declare (string-compat maybe-hex-string))
-           (%string-not-empty-p maybe-hex-string)
-           (or (simple-string-compat-p maybe-hex-string)
+    (and (locally
+          (declare (string-compat maybe-hex-string))
+          (%string-not-empty-p maybe-hex-string)
+          (or (simple-string-compat-p maybe-hex-string)
                (setf maybe-hex-string (copy-seq maybe-hex-string))))
          (locally
              (declare (simple-string-compat maybe-hex-string))
-           (loop 
+             (loop
               for chk-hex across maybe-hex-string
               always (hexadecimal-char-p chk-hex))))))
 
-;; (loop 
+;; (loop
 ;;    for chk-hex across +uuid-null-string+ of-type simple-string-compat
 ;;    always (hexadecimal-char-p chk-hex))
 
@@ -120,7 +121,7 @@
 ;;        'string-with-fill-pointer)
 ;; :SEE-ALSO `string-with-fill-pointer-p', `string-with-fill-pointer-check-type'
 (deftype string-with-fill-pointer ()
-  #-:lispworks `(and (or (vector character) 
+  #-:lispworks `(and (or (vector character)
                          (vector base-char))
                      (satisfies vector-with-fill-pointer-p))
   #+:lispworks `(and (or simple-string-compat
@@ -141,8 +142,8 @@
 
 
 ;;; ==============================
-;;; documentation fun
-;;; ==============================  
+;;; Documentation fun
+;;; ==============================
 
 ;;; :SOURCE mcclim/Apps/Scigraph/dwim/extensions.lisp
 ;;; Which noted: "A somewhat consful implementation, but entirely portable."
@@ -154,21 +155,21 @@
 	(not errorp)))))
 
 (defun doc-set (name object-type string args) ;&rest args)
-  (declare (type (or standard-method standard-generic-function (and symbol (not-null)))  name) 
+  (declare (type (or standard-method standard-generic-function (and symbol (not-null)))  name)
            (type (member variable type function generic method) object-type)
            ((or null string) string))
-  (let ((doc-or-null 
+  (let ((doc-or-null
          (if (null string)
              string
              (apply #'format nil `(,string ,@args)))))
     (ecase object-type
       (function
-       (setf (documentation (fdefinition name) object-type) 
+       (setf (documentation (fdefinition name) object-type)
              (setf (documentation name object-type) doc-or-null)))
-      (variable 
+      (variable
        (locally (declare (special name))
          (setf (documentation name object-type) doc-or-null)))
-      (type 
+      (type
        (setf (documentation name object-type) doc-or-null))
       (method
        (setf (documentation name t) doc-or-null))
@@ -192,12 +193,12 @@
 
 (defun vardoc (name &optional string &rest args)
   (declare (type symbol name)
-           (special name) 
+           (special name)
            ((or null string-compat) string))
   (doc-set name 'variable string args))
 
 (defun typedoc (name &optional string &rest args)
-  (declare (type symbol name) 
+  (declare (type symbol name)
            ((or null string-compat) string))
   (when (type-specifier-p name)
     (doc-set name 'type string args)))

@@ -90,7 +90,7 @@
      if (eql byte-read 'EOF)
      do (error 'end-of-file :stream stream-in)
      end
-     ;; unless (typep byte-read 'bit) ;; catches new line just prior to EOF...
+     ;; unless (typep byte-read 'bit) ; catches new line just prior to EOF...
      ;; do (error "UUID-DESERIALIZE-BIT-VECTOR-BITS -- CL:READ-BYTE read object not of type CL:BIT~%~Tgot: ~S~%~Ttype-of: ~S~%"
      ;; byte-read (type-of byte-read))
      do (setf (aref ba16 ba16-idx) byte-read)
@@ -101,8 +101,7 @@
 ;; :NOTE Should there be a generic function which dispatches on the UUID's
 ;; representation , e.g. uuid-bit-vector-128, uuid-byte-array-20array-16,
 ;; unique-universal-identifier, uuid-string-32, uuid-string-36?
-;; :NOTE Consider renaming this to `serialize-uuid-byte-array' and calling the
-;; G-F in body.
+;; :NOTE Consider renaming this to `serialize-uuid-byte-array' and calling the G-F in body.
 (defun uuid-serialize-byte-array-bytes (uuid-or-byte-array-16 stream-out)
   (declare (type (or uuid-byte-array-16 unique-universal-identifier) uuid-or-byte-array-16)
            (type stream stream-out)
@@ -181,16 +180,6 @@
     (write-sequence bv-128 stream-out :start 0 :end 128)))
 
 
-;; (fundoc 'uuid-read-bit-vector-bits
-;; Read the bits of a UUID's bit-vector representation from INPUT-PATHNAME return
-;; an object of type `uuid-bit-vector-128'.
-;; INPUT-PATHNAME names an existing file with element-type `uuid-ub8'.
-;; :EXAMPLE
-;;  (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
-;;                             :name "bitstream-test"))
-;;         (v4     (uuid-to-bit-vector (make-v4-uuid)))
-;;         (v4-io  (uuid-read-bit-vector-bits (uuid-write-bit-vector-bits v4 tmp))))
-;;    (uuid-bit-vector-eql v4 v4-io))
 (defun uuid-read-bit-vector-bits (input-pathname &key (if-does-not-exist :error))
   (declare (type (or pathname string) input-pathname))
   (with-open-file (bv-in input-pathname

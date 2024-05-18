@@ -5,14 +5,17 @@
 
 (in-package #:unicly)
 
+;;; :TODO make use of uiop/ASDF3 foo for this instead:
 (defun %def-uuid-format-and-intern-symbol (format-string format-arg)
   (let ((generated-name (format nil (string-upcase format-string) format-arg)))
     (intern generated-name (find-package "UNICLY"))))
 
+;; Expanded in macro `def-uuid-predicate-and-type-check-definer'.
 (defun %def-uuid-format-and-intern-symbol-type-predicate (type-symbol-or-string)
   (let ((generated-name (format nil "~A-P" (string-upcase type-symbol-or-string))))
     (intern generated-name (find-package "UNICLY"))))
 
+;; Expanded in macro `def-uuid-predicate-and-type-check-definer'.
 (defun %def-uuid-format-and-intern-symbol-type-checker (type-symbol-or-string)
   (let ((generated-name (format nil "~A-CHECK-TYPE" (string-upcase type-symbol-or-string))))
     (intern generated-name (find-package "UNICLY"))))
@@ -29,44 +32,45 @@
     `(deftype ,definer-interned-name ()
       '(,parent-type ,length-arg))))
 
+;; (macroexpand-1 '(def-uuid-unsigned-byte-size 128))
 (defmacro def-uuid-unsigned-byte-size (size-bytes)
-  ;; (macroexpand-1 '(def-uuid-unsigned-byte-size 128))
   `(def-uuid-type-definer uuid-unsigned-byte-size "UUID-UB~D" ,size-bytes))
 
+;; (macroexpand-1 '(def-uuid-unsigned-byte-size 128))
 (defmacro def-uuid-byte-array-length (byte-array-length)
-  ;; (macroexpand-1 '(def-uuid-unsigned-byte-size 128))
   `(def-uuid-type-definer uuid-byte-array "UUID-BYTE-ARRAY-~D" ,byte-array-length))
 
+;; (macroexpand-1 '(def-uuid-unsigned-byte-integer-length 128))
+;; :NOTE We have to generate the symbol name first b/c
+;; `uuid-unsigned-byte-integer-length' is specified as: (mod
+;; <UNSIGNED-LENGTH>) but if the macro expands (1+ unsigned-length) the we
+;; will get symbol-names like `uuid-ub129-integer-length' instead of
+;; `uuid-ub128-integer-length'
 (defmacro def-uuid-unsigned-byte-integer-length (unsigned-length)
-  ;; (macroexpand-1 '(def-uuid-unsigned-byte-integer-length 128))
-  ;; :NOTE We have to generate the symbol name first b/c
-  ;; `uuid-unsigned-byte-integer-length' is specified as: (mod
-  ;; <UNSIGNED-LENGTH>) but if the macro expands (1+ unsigned-length) the we
-  ;; will get symbol-names like `uuid-ub129-integer-length' instead of
-  ;; `uuid-ub128-integer-length'
   (let ((generated-name-string (format nil "UUID-UB~D-INTEGER-LENGTH" unsigned-length)))
     `(def-uuid-type-definer uuid-unsigned-byte-integer-length ,generated-name-string ,(1+ unsigned-length))))
 
+;; (macroexpand-1 '(def-uuid-bit-vector-N-type 16))
 (defmacro def-uuid-bit-vector-N-type (bv-length-type)
-  ;; (macroexpand-1 '(def-uuid-bit-vector-N-type 16))
   ;; (let ((interned-name (uuid-format-and-intern-symbol "UUID-BIT-VECTOR-~D" bv-length-type)))
   ;;   `(deftype ,interned-name ()
   ;;      '(uuid-bit-vector ,bv-length-type)))
   ;; `(def-uuid-type-definer uuid-bit-vector-sized  "UUID-BIT-VECTOR-~D" ,bv-length-type))
   `(def-uuid-type-definer uuid-bit-vector "UUID-BIT-VECTOR-~D" ,bv-length-type))
 
+;; (macroexpand-1 '(def-uuid-bit-vector-length-type 16))
 (defmacro def-uuid-bit-vector-length-type (bv-length)
-  ;; (macroexpand-1 '(def-uuid-bit-vector-length-type 16))
   ;; (let ((interned-name (uuid-format-and-intern-symbol "UUID-BIT-VECTOR-~D-LENGTH" bv-length)))
   ;;   `(deftype ,interned-name ()
   ;;      '(uuid-bit-vector-length ,bv-length))))
   `(def-uuid-type-definer uuid-bit-vector-length "UUID-BIT-VECTOR-~D-LENGTH" ,bv-length))
 
+;; (macroexpand '(def-uuid-uuid-hex-string-length 12))
 (defmacro def-uuid-uuid-hex-string-length (hex-string-length)
-  ;; (macroexpand '(def-uuid-uuid-hex-string-length 12))
   `(def-uuid-type-definer uuid-hex-string-length "UUID-HEX-STRING-~D" ,hex-string-length))
 
-;; Define a type predicate for an existing type
+;;; Expanded in macro `def-uuid-predicate-and-type-check-definer'
+;; (macroexpand '(def-uuid-type-predicate-definer PREDICATE-NAME TYPE-TO-CHECK))
 (defmacro def-uuid-type-predicate-definer (predicate-name type-to-check)
   ;; `(progn
   ;;    (eval-when (:compile-toplevel)
@@ -75,6 +79,8 @@
        (declare (optimize (speed 3)))
        (typep maybe-object-of-type ',type-to-check)))
 
+;;; Expanded in macro `def-uuid-predicate-and-type-check-definer'
+;; (macroexpand-1 '(def-uuid-type-check-definer TYPE-CHECK-NAME NAME-PREDICATE CHECKED-TYPE))
 (defmacro def-uuid-type-check-definer (type-check-name name-predicate checked-type)
   `(defun ,type-check-name (checked-val)
        (declare (inline ,name-predicate)
@@ -84,9 +90,10 @@
            (the boolean T)
          (uuid-simple-type-error :datum checked-val :expected-type ',checked-type))))
 
+;; (macroexpand-1 '(def-uuid-predicate-and-type-check-definer uuid-bit-vector-8))
+;; (macroexpand-1 '(def-uuid-predicate-and-type-check-definer uuid-string-36))
+;; (def-uuid-predicate-and-type-check-definer uuid-bit-vector-8)
 (defmacro def-uuid-predicate-and-type-check-definer (type-for-pred-and-check)
-  ;; (macroexpand-1 '(def-uuid-predicate-and-type-check-definer uuid-bit-vector-8))
-  ;; (def-uuid-predicate-and-type-check-definer uuid-bit-vector-8)
   (let ((definer-interned-predicate-name  (%def-uuid-format-and-intern-symbol-type-predicate type-for-pred-and-check))
         (definer-interned-check-type-name (%def-uuid-format-and-intern-symbol-type-checker   type-for-pred-and-check)))
     `(progn
@@ -97,8 +104,9 @@
 ;;; ==============================
 ;;; Following macros expanded in :FILE unicly/unicly-bit-vectors.lisp
 ;;; `def-uuid-bit-vector-zeroed'
+;;;
+;; (macroexpand-1 '(def-uuid-bit-vector-zeroed 32))
 (defmacro def-uuid-bit-vector-zeroed (zeroed-size)
-  ;; (macroexpand-1 '(def-uuid-bit-vector-zeroed 32))
   (let ((interned-bv-zeroed-name (%def-uuid-format-and-intern-symbol "UUID-BIT-VECTOR-~D-ZEROED" zeroed-size))
         (bv-int-size-and-type
          (etypecase zeroed-size
@@ -147,8 +155,10 @@
 ;;; ==============================
 ;;; Following macros expanded in :FILE unicly/unicly-class.lisp
 ;;; `uuid-string-parse-integer', `uuid-svref-for-parse-integer', `def-indexed-hexstring-integer-parser'
+;;;
+;; (macroexpand-1 '(uuid-string-parse-integer "6ba7b810-9dad-11d1-80b4-00c04fd430c8" 0 8 uuid-ub32))
 (defmacro uuid-string-parse-integer (uuid-hex-string start end integer-type)
-  ;; (macroexpand-1 '(uuid-string-parse-integer "6ba7b810-9dad-11d1-80b4-00c04fd430c8" 0 8 uuid-ub32))
+
   `(the ,integer-type (parse-integer ,uuid-hex-string :start ,start :end ,end :radix 16)))
 
 ;;; ==============================
@@ -180,6 +190,7 @@
        (uuid-string-parse-integer
         (uuid-svref-for-parse-integer hex-vector-5 ,vec-index ,string-type-at-index)
         ,string-start ,string-end ,string-integer-type))))
+
 
 ;;; ==============================
 

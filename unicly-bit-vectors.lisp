@@ -17,7 +17,7 @@
 ;; The UUIDs bit-vector representation
 ;; (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba"))
 ;;   0      7       15      23      31      39      47      55       63     71      79      87      95      103     111     119     127
-;;   !      !       !       !       !       !       !       !        !      !       !       !       !       !       !       !       !  
+;;   !      !       !       !       !       !       !       !        !      !       !       !       !       !       !       !       !
 ;; #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
 ;;
 ;; The UUIDs binary integer representation:
@@ -27,7 +27,7 @@
 ;; The UUIDs byte-array reresentation:
 ;; (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)
 ;; => #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
-;; 
+;;
 ;; (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba"))
 ;; => #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
 ;;
@@ -35,7 +35,7 @@
 ;; => (#*11101110 #*10100001 #*00010000 #*01011110 #*00110110 #*10000001 #*01010001
 ;; #*00010111 #*10011001 #*10110110 #*01111011 #*00101011 #*01011111 #*11100001
 ;; #*11110011 #*11000111)
-;; 
+;;
 ;;
 ;; (uuid-byte-array-to-bit-vector (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
 ;; => #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
@@ -43,10 +43,10 @@
 ;; The upper bounds of a UUID in binary integer representation:
 ;; #b11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 ;;  => 340282366920938463463374607431768211455
-;; 
+;;
 ;; The number of unsigned bits used to represent the upper bounds of a UUIDs
 ;; integer representation:
-;; (integer-length 340282366920938463463374607431768211455) 
+;; (integer-length 340282366920938463463374607431768211455)
 ;; => 128
 ;;
 ;; The octet count of the upper bounds of a UUIDs integer representation:
@@ -63,8 +63,8 @@
 ;; eleven thousand four hundred fifty-five
 ;;
 ;; The octet offsets into a uuid-bit-vector-128:
-;; (loop  
-;;    for x from 0 below 128 by 8 
+;; (loop
+;;    for x from 0 below 128 by 8
 ;;    for q = 0 then x
 ;;    as y = 7 then (+ x 7)
 ;;    collect (list q y))
@@ -73,21 +73,20 @@
 ;;     (48 55) (56 63)                 ;; %uuid_time-high-and-version
 ;;     (64 71)                         ;; %uuid_clock-seq-and-reserved
 ;;     (72 79)                         ;; %uuid_clock-seq-low
-;;     (80 87)   (88 95)   (96 103)    
+;;     (80 87)   (88 95)   (96 103)
 ;;     (104 111) (112 119) (120 127))  ;; %uuid_nodede
 ;;
 ;;; ==============================
 
 
 (in-package #:unicly)
-;; *package*
 
 (declaim (inline uuid-bit-vector-128-zeroed
                  uuid-bit-vector-48-zeroed
                  uuid-bit-vector-32-zeroed
                  uuid-bit-vector-16-zeroed
                  uuid-bit-vector-8-zeroed))
-;; uuid-bit-vector-<N>-zeroed   
+;; uuid-bit-vector-<N>-zeroed
 (def-uuid-bit-vector-zeroed  128)
 (def-uuid-bit-vector-zeroed   48)
 (def-uuid-bit-vector-zeroed   32)
@@ -109,11 +108,11 @@
 ;; (let ((bv (uuid-bit-vector-128-zeroed)))
 ;;   (setf (sbit bv 127) 1)
 ;;   (null (uuid-bit-vector-eql (uuid-bit-vector-128-zeroed) bv)))
-;; 
+;;
 ;; following errors succesfully:
 ;; (uuid-bit-vector-eql (uuid-bit-vector-128-zeroed)  "bubba")
 (defun uuid-bit-vector-eql (uuid-bv-a uuid-bv-b)
-  (declare 
+  (declare
    ;; :NOTE safety 2 required if we want to ensure Python sniffs around for bv length
    ;; So we added `uuid-bit-vector-128-check-type' -- should be no way for it to fail.
    (inline uuid-bit-vector-128-check-type)
@@ -121,13 +120,13 @@
    (optimize (speed 3)))
   (uuid-bit-vector-128-check-type uuid-bv-a)
   (uuid-bit-vector-128-check-type uuid-bv-b)
-  (locally 
+  (locally
       (declare (type uuid-bit-vector-128 uuid-bv-a uuid-bv-b)
                (optimize (speed 3) (safety 0)))
   #-:sbcl
   (if (and (= (count 0 uuid-bv-a :test #'=) (count 0 uuid-bv-b :test #'=))
            (= (count 1 uuid-bv-a :test #'=) (count 1 uuid-bv-b :test #'=)))
-      (loop 
+      (loop
          for low-idx from 0 below 64
          for top-idx = (logxor low-idx 127)
          always (and (= (sbit uuid-bv-a low-idx) (sbit uuid-bv-b low-idx))
@@ -142,7 +141,7 @@
   (the (values (member t nil) &optional)
     (uuid-bit-vector-eql bit-vector-maybe-null (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed)))))
 
-;; :NOTE The type unicly::uuid-bit-vector-null is a satisfies of %uuid-bit-vector-null-p
+;; :NOTE The type `unicly::uuid-bit-vector-null' is a satisfies of `%uuid-bit-vector-null-p'
 (declaim (inline uuid-bit-vector-null-p))
 (defun uuid-bit-vector-null-p (bit-vector-maybe-null)
   (declare (optimize (speed 3)))
@@ -166,7 +165,7 @@
            (uuid-ub128-integer-length offset)
            (uuid-bit-vector-128 uuid-bv)
            (optimize (speed 3)))
-  (loop 
+  (loop
      for idx upfrom offset below (+ offset 8)
      do (setf (sbit uuid-bv idx) (ldb (byte 1 7) octet))
      (setf octet (logand #xFF (ash octet 1)))
@@ -182,7 +181,7 @@
     (declare (uuid-bit-vector-128 uuid-bv128))
     (when (%uuid-byte-array-null-p uuid-byte-array)
       (return-from uuid-byte-array-to-bit-vector uuid-bv128))
-    (loop 
+    (loop
        for byte across uuid-byte-array
        for offset upfrom 0 by 8 below 128
        do (uuid-deposit-octet-to-bit-vector byte offset uuid-bv128)
@@ -197,8 +196,8 @@
   (labels ((displaced-8 (disp-off)
              (declare (optimize (speed 3)))
              (the (bit-vector 8)
-               (make-array 8 
-                           :element-type 'bit 
+               (make-array 8
+                           :element-type 'bit
                            :displaced-to uuid-bv-128
                            :displaced-index-offset disp-off)))
            ;; ,----
@@ -208,7 +207,7 @@
            ;; | DISPLACED-TO being true, whether the resulting array is a simple array
            ;; | is implementation-dependent.
            ;; `----
-           ;; On SBCL bv8 is of type: 
+           ;; On SBCL bv8 is of type:
            ;; (and (bit-vector 8) (not simple-array))
            (bv8-to-ub8 (bv8)
              (declare ((bit-vector 8) bv8)
@@ -219,21 +218,20 @@
                  (setf j (logior (bit bv8 i) (ash j 1))))))
            (get-bv-octets ()
              (let ((rtn     (uuid-byte-array-16-zeroed))
-                   (offsets (loop 
+                   (offsets (loop
                                with offsets-array = (uuid-byte-array-16-zeroed)
                                for idx from 0 below 16
                                for bv-offset from 0 below 128 by 8
                                do (setf (aref offsets-array idx) bv-offset)
                                finally (return offsets-array))))
                (declare (uuid-byte-array-16 rtn offsets))
-               (loop 
+               (loop
                   for off across offsets
                   for idx from 0 below 16
                   for octet of-type uuid-ub8 = (bv8-to-ub8 (displaced-8 off))
                   do (setf (aref rtn idx) octet)
                   finally (return rtn)))))
     (the uuid-byte-array-16 (get-bv-octets))))
-      
 
 ;;; ==============================
 ;; :NOTE Return value has the integer representation: 267678999922476945140730988764022209929
@@ -241,14 +239,14 @@
 ;; (uuid-bit-vector-to-integer (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ")))
 (defun uuid-to-bit-vector (uuid)
   (declare (type unique-universal-identifier uuid)
-           (inline uuid-disassemble-ub32 
+           (inline uuid-disassemble-ub32
                    uuid-disassemble-ub16
-                   uuid-bit-vector-128-zeroed 
+                   uuid-bit-vector-128-zeroed
                    %unique-universal-identifier-null-p)
            (optimize (speed 3)))
   (when (%unique-universal-identifier-null-p uuid)
     (return-from uuid-to-bit-vector (uuid-bit-vector-128-zeroed)))
-  (let ((bv-lst 
+  (let ((bv-lst
          (with-slots (%uuid_time-low %uuid_time-mid %uuid_time-high-and-version
                       %uuid_clock-seq-and-reserved %uuid_clock-seq-low %uuid_node)
              uuid
@@ -256,7 +254,7 @@
                     (uuid-ub16 %uuid_time-mid %uuid_time-high-and-version)
                     (uuid-ub8  %uuid_clock-seq-and-reserved %uuid_clock-seq-low)
                     (uuid-ub48 %uuid_node))
-           (multiple-value-call #'list 
+           (multiple-value-call #'list
              (uuid-disassemble-ub32 %uuid_time-low)
              (uuid-disassemble-ub16 %uuid_time-mid)
              (uuid-disassemble-ub16 %uuid_time-high-and-version)
@@ -265,7 +263,7 @@
              (uuid-disassemble-ub48 %uuid_node))))
         (uuid-bv128 (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed))))
     (declare (list bv-lst) (uuid-bit-vector-128 uuid-bv128))
-    (loop 
+    (loop
        for byte in bv-lst
        for offset upfrom 0 by 8 below 128
        do (uuid-deposit-octet-to-bit-vector (the uuid-ub8 byte) offset uuid-bv128)
@@ -280,7 +278,7 @@
   (declare (inline uuid-bit-vector-128-check-type)
            (optimize (speed 3)))
   (uuid-bit-vector-128-check-type uuid-bit-vector)
-  (locally (declare 
+  (locally (declare
             (uuid-bit-vector-128 uuid-bit-vector)
             (optimize (speed 3) (safety 0)))
     (unless (zerop (sbit uuid-bit-vector 48))
@@ -312,7 +310,7 @@
          (0 (ecase (the bit (sbit uuid-bit-vector 51))
               (1 1)
               ;; RFC4122 Setion 4.1.7. "Nil UUID" specifically requires a null UUID
-              ;; However, it doesn't say anything about the version 0 UUID... 
+              ;; However, it doesn't say anything about the version 0 UUID...
               ;; Of course it wouldn't given how C centric nature of the entire RFC :)
               ;; So, as a way of flipping the bird to the curly brace inclined we
               ;; choose to return as if by `cl:values': 0, null-uuid
@@ -370,7 +368,7 @@
 ;;                                        :adjustable      nil)))
 ;;              (declare (fixnum-bit-width mk-len)
 ;;                       (simple-bit-vector bv-29))
-;;              (loop 
+;;              (loop
 ;;                 for i-lb from 0 below mk-len
 ;;                 do (and (logbitp i-lb fixnum-int)
 ;;                         (setf (sbit bv-29 i-lb) 1))
@@ -384,13 +382,13 @@
 ;;                                            :adjustable      nil)))
 ;;              (declare (bignum-bit-width mk-big-len)
 ;;                       (simple-bit-vector bv-big))
-;;              (loop 
+;;              (loop
 ;;                 for i-lb from 0 below mk-big-len
 ;;                 do (and (logbitp i-lb bignum-int)
 ;;                         (setf (sbit bv-big i-lb) 1))
 ;;                 finally (return (nreverse bv-big))))))
 ;;     (etypecase unsigned-integer
-;;       (fixnum-0-or-over (the simple-bit-vector 
+;;       (fixnum-0-or-over (the simple-bit-vector
 ;;                           (number-to-bit-vector-fixnum
 ;;                            (the fixnum-0-or-over unsigned-integer))))
 ;;       (bignum-0-or-over  (the simple-bit-vector
@@ -405,7 +403,7 @@
         (bv-big      (the uuid-bit-vector-128 (uuid-bit-vector-128-zeroed))))
     (declare (uuid-ub128-integer-length mk-big-len)
              (uuid-bit-vector-128 bv-big))
-    (loop 
+    (loop
        for i-lb from 0 below mk-big-len
        do (and (logbitp i-lb uuid-integer-128)
                (setf (sbit bv-big i-lb) 1))
@@ -425,18 +423,18 @@
          (result    0)
          (index     -1))
     (labels ((build-word ()
-               (loop 
+               (loop
                   repeat word-size
                   for j = 0 then (logior (sbit bit-vector (incf index))
                                          (ash j 1))
                   finally (return j)))
              (loop-repeats ()
-                (loop 
+                (loop
                    repeat repeats ;; (floor bv-length word-size)
                    do (setf result (logior (build-word)
                                            (ash result (1- word-size))))))
              (loop-less-index ()
-                (loop 
+                (loop
                    while (< index (1- bv-length))
                    do (setf result (logior (sbit bit-vector (incf index))
                                            (ash result 1)))))
@@ -472,11 +470,11 @@
       (etypecase bv-length 
         (uuid-bit-vector-128-length (get-bv-128-int))
         ;; `%uuid_node'
-        (uuid-bit-vector-48-length  (get-bv-48-int))     
+        (uuid-bit-vector-48-length  (get-bv-48-int))
         ;; `%uuid_time-low'
-        (uuid-bit-vector-32-length  (get-bv-32-int))     
+        (uuid-bit-vector-32-length  (get-bv-32-int))
         ;; `%uuid_time-mid', `%uuid_time-high-and-version'
-        (uuid-bit-vector-16-length  (get-bv-16-int))     
+        (uuid-bit-vector-16-length  (get-bv-16-int))
         ;; `%uuid_clock-seq-and-reserved', `%uuid_clock-seq-low'
         (uuid-bit-vector-8-length   (get-bv-8-int))))))
 
@@ -486,12 +484,11 @@
     (declare (uuid-bit-vector-valid-bit-offset bit-offset)
              (uuid-bit-vector-valid-bit-width bit-width)
              (optimize (speed 3) (safety 2)))
-    (loop  
-       for x from bit-offset below (+ bit-offset bit-width) by 8 
+    (loop
+       for x from bit-offset below (+ bit-offset bit-width) by 8
        for q = bit-offset then x
        as y = (cons q (+ x 7))
-       collect y))
-)
+       collect y)))
 
 ;;; ==============================
 ;; :NOTE `def-uuid-request-integer-bit-vector' defines the following functions:
@@ -572,13 +569,13 @@
 ;;   (etypecase size
 ;;     (uuid-bit-vector-128-length
 ;;      (declared-uuid-bit-vector-of-size-zeroed size uuid-bit-vector-128))
-;;     (uuid-bit-vector-48-length  
+;;     (uuid-bit-vector-48-length
 ;;      (declared-uuid-bit-vector-of-size-zeroed size uuid-bit-vector-48))
-;;     (uuid-bit-vector-32-length  
+;;     (uuid-bit-vector-32-length
 ;;      (declared-uuid-bit-vector-of-size-zeroed size uuid-bit-vector-32))
 ;;     (uuid-bit-vector-16-length
 ;;      (declared-uuid-bit-vector-of-size-zeroed size uuid-bit-vector-16))
-;;     (uuid-bit-vector-8-length 
+;;     (uuid-bit-vector-8-length
 ;;      (declared-uuid-bit-vector-of-size-zeroed size uuid-bit-vector-8))))
 ;;
 ;; :NOTE For both `uuid-bit-vector-128-zeroed' and `uuid-bit-vector-8-zeroed' we
@@ -627,7 +624,7 @@
 ;;   (flet ((bit-adder (first-bit second-bit)
 ;;            (+ (ash first-bit 1) second-bit)))
 ;;     (etypecase bit-vector
-;;       (simple-bit-vector 
+;;       (simple-bit-vector
 ;;        (locally (declare (simple-bit-vector bit-vector))
 ;;          (reduce #'bit-adder bit-vector)))
 ;;       (bit-vector
@@ -654,24 +651,21 @@
 ;;          (result 0)
 ;;          (index -1))
 ;;     (flet ((build-word ()
-;;              (loop 
+;;              (loop
 ;;                 repeat word-size
 ;;                 for j = 0 then (logior (bit bit-vector (incf index))
 ;;                                        (ash j 1))
 ;;                 finally (return j))))
-;;       (loop 
+;;       (loop
 ;;          repeat (floor bv-length word-size)
 ;;          do (setf result (logior (build-word)
 ;;                                  (ash result (1- word-size)))))
-;;       (loop 
+;;       (loop
 ;;          while (< index (1- bv-length))
 ;;          do (setf result (logior (bit bit-vector (incf index))
 ;;                                  (ash result 1)))))
 ;;     result))
 ;;; ==============================
-;;; ==============================
-;;; ==============================
-
 
 
 ;;; ==============================

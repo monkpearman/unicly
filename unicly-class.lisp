@@ -5,7 +5,7 @@
 
 
 (in-package #:unicly)
-;; *package*
+
 
 (defgeneric uuid-print-bit-vector (uuid &key stream))
 
