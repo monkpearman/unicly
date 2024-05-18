@@ -4,7 +4,6 @@
 
 
 (in-package #:unicly)
-;; *package*
 
 ;; simple-type
 (deftype uuid-version-int ()
@@ -48,7 +47,7 @@
 (def-uuid-unsigned-byte-integer-length   9)
 
 ;;; ==============================
-;; 
+;;
 ;; (deftype uuid-fixnum-bit-width ()
 ;;   #-sbcl '(integer 0 #.(integer-length most-positive-fixnum))
 ;;   #+sbcl '(integer 0 #.sb-vm:n-positive-fixnum-bits))
@@ -87,7 +86,7 @@
 ;; simple-type
 ;; (funcall (lambda (x) (declare (uuid-bit-vector-valid-length x) (optimize (speed 3))) x) 129)
 (deftype uuid-bit-vector-valid-length ()
-  '(or 
+  '(or
     uuid-bit-vector-128-length
     uuid-bit-vector-48-length
     uuid-bit-vector-32-length
@@ -102,7 +101,7 @@
 ;; complex-type
 ;; (funcall (lambda (x) (declare (uuid-bit-vector-valid-bit-width x) (optimize  (speed 3))) x) 18)
 (deftype uuid-bit-vector-valid-bit-width ()
-  '(or 
+  '(or
     uuid-bit-vector-48-length
     uuid-bit-vector-32-length
     uuid-bit-vector-16-length
@@ -122,7 +121,7 @@
 
 ;; :NOTE This is entirely equivalent to the type `ironclad::simple-octet-vector'
 ;; So long as Unicly has an ironclad dependency maybe we should just use that instead? :)
-;; complex-type 
+;; complex-type
 (deftype uuid-byte-array (&optional size)
   (let ((sz (or size '*)))
     `(simple-array uuid-ub8 (,sz))))
@@ -148,13 +147,17 @@
 ;; complex-type
 (deftype uuid-string-32 ()
   #-:lispworks '(array character (32))
-  #+:lispworks '(simple-string-n-length-compat 36))
+  #+:lispworks '(simple-string-n-length-compat 32)
+  #+:SBCL '(simple-string 32) ;(simple-base-string 32) ; '(simple-array character (32))
+)
 
 ;; complex-type
 (deftype uuid-string-36 ()
-  #-:lispworks '(array character (36))
-  #+:lispworks '(string-n-length-compat 36))
- 
+  #+:lispworks '(string-n-length-compat 36)
+  #-:lispworks '(string 36)
+  #+:SBCL'(simple-string 36) ;(simple-base-string 36) ; '(simple-array character (36))
+)
+
 ;; complex-type
 ;; currently unused :SEE `uuid-get-bytes' in unicly/unicly-deprecated.lisp
 (deftype uuid-byte-string ()
@@ -163,11 +166,11 @@
 
 ;;; ==============================
 ;; :NOTE These notes are w/r/t method `uuid-print-bytes-to-string' specialized
-;; on `unique-universal-identifier'. Currently the internal string variable is 
+;; on `unique-universal-identifier'. Currently the internal string variable is
 ;; an object of type:
 ;;  (AND (BASE-STRING 32) (NOT SIMPLE-ARRAY))
 ;; That decision likely originally had something to do with some notion i had re
-;; `ironclad:byte-array-to-hex-string' and `simple-base-string's. 
+;; `ironclad:byte-array-to-hex-string' and `simple-base-string's.
 ;; In any event, if we tweak `uuid-print-bytes-to-string' we need to be mindful
 ;; that underlying callers/methods may check `uuid-hex-string-<N>' and might
 ;; fail if they don't find the correct array-element-type...
@@ -265,7 +268,7 @@
   (declare (inline uuid-byte-array-16-check-type)
            (optimize (speed 3)))
   (uuid-byte-array-16-check-type byte-array-maybe-null)
-  (locally 
+  (locally
       (declare (uuid-byte-array-16 byte-array-maybe-null))
     (loop for x across byte-array-maybe-null always (zerop x))))
 ;;
@@ -301,8 +304,8 @@
              (let ((rtn-sub (make-array length :element-type 'character))
                    (sub-end (+ offset length)))
                (declare ((mod 37) sub-end))
-               (loop 
-                  for source-idx from offset below sub-end 
+               (loop
+                  for source-idx from offset below sub-end
                   for dest-idx from 0 below length
                   do (setf (char rtn-sub dest-idx)
                            (char string-seq source-idx))
@@ -310,41 +313,41 @@
            (delimited-subseqs (string-for-subs)
              (declare (uuid-string-36 string-for-subs))
              (the uuid-simple-string-vector-5
-               #+:lispworks 
-               (make-array 5 
+               #+:lispworks
+               (make-array 5
                            :element-type 'system:simple-augmented-string
-                           :initial-contents (list 
+                           :initial-contents (list
                                               (the uuid-hex-string-8  (delimit-seq string-for-subs 0  8))
                                               (the uuid-hex-string-4  (delimit-seq string-for-subs 9  4))
                                               (the uuid-hex-string-4  (delimit-seq string-for-subs 14 4))
                                               (the uuid-hex-string-4  (delimit-seq string-for-subs 19 4))
                                               (the uuid-hex-string-12 (delimit-seq string-for-subs 24 12))))
                #-:lispworks
-               (make-array 5 
-                           :element-type 'simple-string 
-                           :initial-contents (list 
+               (make-array 5
+                           :element-type 'simple-string
+                           :initial-contents (list
                                               (the uuid-hex-string-8  (delimit-seq string-for-subs 0  8))
                                               (the uuid-hex-string-4  (delimit-seq string-for-subs 9  4))
                                               (the uuid-hex-string-4  (delimit-seq string-for-subs 14 4))
                                               (the uuid-hex-string-4  (delimit-seq string-for-subs 19 4))
                                               (the uuid-hex-string-12 (delimit-seq string-for-subs 24 12)))))))
     (declare (uuid-string-36 maybe-delim-string-36))
-    (loop 
+    (loop
        initially  (unless (loop
                              for char across maybe-delim-string-36
                              thereis (char= #\- char))
                     (loop-finish))
        for delim-char across maybe-delim-string-36
-       for idx from 0 below 36  
+       for idx from 0 below 36
        when (char-dash-p delim-char)
-       ;; At end we want (+ <CNT> <PSNS>) => 66 e.g. (+ 4  23 18 13 8) => 66 
+       ;; At end we want (+ <CNT> <PSNS>) => 66 e.g. (+ 4  23 18 13 8) => 66
        ;; The maximum upper bounds of cnt is 36  -- an (unsigned-byte 6)
        ;; The maximum upper bounds of cnt is 630 -- an (unsigned-byte 10)
-       ;; These can only occur if MAYBE-DELIM-STRING-36 is cl:string= 
+       ;; These can only occur if MAYBE-DELIM-STRING-36 is cl:string=
        ;; the return-value of (make-string 36 :initial-element #\-)
        count delim-char into cnt of-type (unsigned-byte 6)
        and sum idx into psns of-type (unsigned-byte 10)
-       finally (return 
+       finally (return
                  (if (and (= cnt 4)
                           (= psns 62))
                      (values (the boolean t)
@@ -357,14 +360,14 @@
   (declare (uuid-simple-vector-5 split-vec)
            (optimize (speed 3)))
   (uuid-simple-vector-5-check-type split-vec)
-  (labels 
+  (labels
       ((all-zero-char-p (split-string)
          (declare (simple-string-compat split-string))
-         (loop 
+         (loop
             for maybe-zero across split-string
             always (char= #\0 maybe-zero)))
        (all-strings-zero-p ()
-         (loop 
+         (loop
             for split of-type simple-string-compat across split-vec
             always (all-zero-char-p split))))
     (all-strings-zero-p)))
@@ -383,9 +386,9 @@
   (when (uuid-string-36-p maybe-uuid-hex-string-36)
     (multiple-value-bind (is-36 split-36) (uuid-delimited-string-36-p (the uuid-string-36 maybe-uuid-hex-string-36))
       (when is-36
-        (locally 
+        (locally
             (declare (type uuid-simple-string-vector-5 split-36))
-          (when (loop 
+          (when (loop
                    ;; for split of-type simple-string-compat across (the uuid-simple-string-vector-5 split-36)
                    for split of-type simple-string-compat across split-36
                    always (string-all-hex-char-p split))
