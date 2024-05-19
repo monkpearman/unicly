@@ -19,8 +19,8 @@
 (defvar *author-maintainer-contact* (format nil "MON KEY -- ~A"
                                  (map 'string
                                       'code-char
-                                      #(109 111 110 107 101 121 64 115 97 110 100 112 
-                                        102 114 97 109 105 110 103 46 99 111 109))))
+                                      #(109 111 110 107 112 101 97 114 109 97 110
+                                        64 105 99 108 111 117 100 46 99 111 109))))
 
 (asdf:defsystem #:unicly
   :name "unicly"
@@ -63,9 +63,7 @@
                ;; (:file "unicly-deprecated")
                )
   ;; :in-order-to ((test-op (test-op :unicly/tests)))
-  
   )
-
 
 (defmethod asdf:perform :after ((op asdf:load-op) (system (eql (asdf:find-system :unicly))))
   (pushnew :unicly cl:*features*)
@@ -90,8 +88,6 @@
 ;;   :depends-on (:unicly )
 ;;   ;; :perform (test-op (o c) (funcall (intern (symbol-name '#:do-tests)(find-package '#:unicly/unicly-test))))
 ;; )
-
-
 
 
 ;;; ==============================
