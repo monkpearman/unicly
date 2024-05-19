@@ -2,9 +2,7 @@
 ;;; :FILE unicly/unicly-docs.lisp
 ;;; ==============================
 
-
 (in-package #:unicly)
-;; *package*
 
 
 ;;; ==============================
@@ -710,6 +708,40 @@ index bounded by START and END Valid types are:~%
      \(push \(apply #'uuid-string-parse-integer m\) gthr\)\)\)~%~@
 :SEE-ALSO `make-uuid-from-string-if'.~%")
 
+(fundoc '%def-uuid-format-and-intern-symbol-type-predicate
+ "Concatenate the string or symbol TYPE-SYMBOL-OR-STRING \"-P\" and intern it.
+Expanded in macro `def-uuid-predicate-and-type-check-definer'.~%
+:EXAMPLE~%~@
+ \(%def-uuid-format-and-intern-symbol-type-predicate 'FOO-BAR\) => FOO-BAR-P ; interned~%
+:SEE-ALSO `%def-uuid-format-and-intern-symbol-type-predicate', `def-uuid-type-predicate-definer'.~%")
+
+(fundoc '%def-uuid-format-and-intern-symbol-type-checker
+ "Concatenate the string or symbol TYPE-SYMBOL-OR-STRING \"-CHECK-TYPE\" and intern it.
+Expanded in macro `def-uuid-predicate-and-type-check-definer'.~%
+:EXAMPLE~%~@
+ \(%def-uuid-format-and-intern-symbol-type-checker 'FOO-BAR\) => FOO-BAR-CHECK-TYPE ; interned~%
+:SEE-ALSO `%def-uuid-format-and-intern-symbol-type-predicate', `def-uuid-type-predicate-definer'.~%")
+
+(fundoc 'def-uuid-type-predicate-definer
+        "Define a type predicate with PREDICATE-NAME for an existing TYPE-TO-CHECK.
+:EXAMPLE~%~@
+ \(macroexpand-1 '\(def-uuid-type-predicate-definer PREDICATE-NAME TYPE-TO-CHECK\)\)
+Expanded in macro `def-uuid-predicate-and-type-check-definer'.~%
+:SEE-ALSO `def-uuid-type-predicate-definer'.~%")
+
+(fundoc 'def-uuid-type-check-definer
+"Define a type checking function with TYPE-CHECK-NAME declairing NAME-PREDICATE inline.
+If TYPE-TO-CHECK doesn't satisfy the defined functions arg CHECKED-VAL, an error
+of type `uuid-simple-type-error' is signaled.~%
+Function definition has the form:~%~@
+ \(defun TYPE-CHECK-NAME \(checked-val\)
+   \(declare \(inline NAME-PREDICATE\) \(optimize \(speed 3\)\)\)
+   \(if \(NAME-PREDICATE checked-val\)
+       \(the boolean T\)
+     \(uuid-simple-type-error :datum checked-val :expected-type 'CHECKED-TYPE\)\)\)~%
+Expanded in macro `def-uuid-predicate-and-type-check-definer'.~%
+:SEE-ALSO `def-uuid-type-predicate-definer'.~%")
+
 (fundoc 'def-uuid-predicate-and-type-check-definer
         "Convenience macro for defining predicate and check-type functions for Unicly types.~%~@
 TYPE-FOR-PRED-AND-CHECK is a token designating an existing type-specifier.
@@ -717,24 +749,25 @@ Its symbol-name is used to generate two symbol-names to use as function names wh
 the predicate and check-type functions.
 Generated predicate name has the form:~%~@
  <TYPE-FOR-PRED-AND-CHECK>-P
-Generated check-type name has the form:
+Generated check-type name has the form:~%~@
  <TYPE-FOR-PRED-AND-CHECK>-CHECK-TYPE
-So given the type specifier UUID-BIT-VECTOR-8
-the following two functions would be definened:
- uuid-bit-vector-8-p uuid-bit-vector-8-check-type
-In the case, uuid-bit-vector-8-check-type is defined with a body which checks if
-some value satisfies uuid-bit-vector-8-p and if not signals a condition of type
+So given the type specifier UUID-BIT-VECTOR-8,
+the following two functions would be defined:~%~@
+ `uuid-bit-vector-8-p' `uuid-bit-vector-8-check-type'~%~@
+In the case, `uuid-bit-vector-8-check-type' is defined with a body which checks if
+some value satisfies `uuid-bit-vector-8-p' and if not signals a condition of type
 `uuid-simple-type-error' its body having the format:~%
  \(unless \(uuid-bit-vector-8-p <SOME-VALUE>\)
    \(uuid-simple-type-error :datum <SOME-VALUE>
                            :expected-type uuid-bit-vector-8\)\)~%~@
 :EXAMPLE~%
- \(macroexpand-1 '\(def-uuid-predicate-and-type-check-definer uuid-bit-vector-32\)\)
+ \(macroexpand-1 '\(def-uuid-predicate-and-type-check-definer uuid-bit-vector-32\)\)~%~@
  \(macroexpand-all '\(def-uuid-predicate-and-type-check-definer uuid-bit-vector-32\)\)~%~@
 :NOTE The body of this macro expands into two addtional macros:~%
- `unicly::def-uuid-type-predicate-definer'
- `unicly::def-uuid-type-check-definer'~%~@
-:SEE-ALSO `<XREF>'.~%")
+ `def-uuid-type-predicate-definer'
+ `def-uuid-type-check-definer'~%~@
+:SEE-ALSO `%def-uuid-format-and-intern-symbol-type-predicate',
+`%def-uuid-format-and-intern-symbol-type-checker'.~%")
 
 (fundoc 'def-uuid-request-integer-bit-vector
  "Convenience macro for functions which extract slot values of class `unique-universal-identifier'.~%~@
@@ -1925,7 +1958,17 @@ Used for the generation of UUIDv3 and UUIDv5 UUID by `make-v5-uuid' and `make-v3
 :SEE-ALSO `<XREF>'.~%")
 
 
-
+(fundoc 'uuid-read-bit-vector-bits
+"Read the bits of a UUID's bit-vector representation from INPUT-PATHNAME return
+an object of type `uuid-bit-vector-128'.~%
+INPUT-PATHNAME names an existing file with element-type `uuid-ub8'.~%
+:EXAMPLE~%~@
+ \(let* \(\(tmp \(make-pathname :directory '\(:absolute  \"tmp\"\)
+                            :name \"bitstream-test\"\)\)
+        \(v4     \(uuid-to-bit-vector \(make-v4-uuid\)\)\)
+        \(v4-io  \(uuid-read-bit-vector-bits \(uuid-write-bit-vector-bits v4 tmp\)\)\)\)
+   \(uuid-bit-vector-eql v4 v4-io\)\)~%
+:SEE-ALSO `<XREF>'.~%")
 
 ;;; ==============================
 
