@@ -496,6 +496,12 @@ UNICLY> (make-uuid-from-string
                  (make-v5-uuid *uuid-namespace-dns* "bubba"))))))))))
 ;=> eea1105e-3681-5117-99b6-7b2b5fe1f3c7
 
+
+Is previously ealuated result uuid-eql to itself?
+
+UNICLY> (uuid-eql * (make-v5-uuid *uuid-namespace-dns* "bubba"))
+;=> T
+
 Comparing return value of UUID-EQL with CL builtin operators CL:EQ, CL:EQL,
 CL:EQUAL, CL:EQUALP, and CL:SXHASH:
 
