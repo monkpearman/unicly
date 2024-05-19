@@ -5,15 +5,15 @@
 ;; :TODO This entire file needs to be wrapped up with a regression suite.
 
 
-(defpackage :unicly/test
-            (:use :common-lisp :unicly
-                  ;; :fiveam
-                  ;; :sb-rt
-                  ))
+;; (defpackage :unicly/test
+;;             (:use :common-lisp :unicly
+;;                   ;; :fiveam
+;;                   ;; :sb-rt
+;;                   ))
+;;
+;; (in-package #:unicly/test)
 
-(in-package #:unicly/test)
-
-;; *package*
+(in-package #:unicly)
 
 ;; `uuid-version-int'
  (loop
@@ -112,8 +112,10 @@
  (equal (multiple-value-list (uuid-disassemble-ub48 263011693164991)) '(239 53 46 138 249 191))
 
  (let ((gthr '()))
-   (dolist (i (list *uuid-namespace-dns* *uuid-namespace-oid*
-                    *uuid-namespace-url* *uuid-namespace-x500*) 
+   (dolist (i (list *uuid-namespace-dns*
+                    *uuid-namespace-oid*
+                    *uuid-namespace-url*
+                    *uuid-namespace-x500*) 
             (equalp gthr
                     '((0 192 79 212 48 200)
                       (0 192 79 212 48 200)
@@ -129,16 +131,19 @@
  (equal (multiple-value-list (uuid-disassemble-ub32 1686856094)) '(100 139 97 158))
 
  (equal (multiple-value-list (uuid-disassemble-ub32
-                              (slot-value (make-v5-uuid *uuid-namespace-dns* "bubba") '%UUID_TIME-MID)))
+                              (slot-value (make-v5-uuid *uuid-namespace-dns* "bubba")
+                                          '%UUID_TIME-MID)))
         '(0 0 54 129))
 
  (let ((gthr '()))
-   (dolist (i (list *uuid-namespace-dns* *uuid-namespace-oid*
-                    *uuid-namespace-url* *uuid-namespace-x500*)
+   (dolist (i (list *uuid-namespace-dns*
+                    *uuid-namespace-oid*
+                    *uuid-namespace-url*
+                    *uuid-namespace-x500*)
             (equalp gthr
                     '((0 0 157 173) (0 0 157 173)
                       (0 0 157 173) (0 0 157 173))))
-     (let ((utm (slot-value i '%uuid_time-mid)))
+     (let ((utm (slot-value i '%UUID_TIME-MID)))
        (push (multiple-value-list (uuid-disassemble-ub32 utm))
              gthr))))
 ;;
@@ -148,18 +153,21 @@
  (equal (multiple-value-list (uuid-disassemble-ub16 13953)) '(54 129))
 
  (equal (multiple-value-list
-         (uuid-disassemble-ub16 (slot-value (make-v5-uuid *uuid-namespace-dns* "bubba") '%UUID_TIME-MID)))
+         (uuid-disassemble-ub16 (slot-value (make-v5-uuid *uuid-namespace-dns* "bubba")
+                                                    '%UUID_TIME-MID)))
         '(54 129))
 
  (eq (nth-value 0 (uuid-disassemble-ub16 13953)) 54)
 
  (let ((gthr '()))
-   (dolist (i (list *uuid-namespace-dns* *uuid-namespace-oid*
-                    *uuid-namespace-url* *uuid-namespace-x500*)
+   (dolist (i (list *uuid-namespace-dns*
+                    *uuid-namespace-oid*
+                    *uuid-namespace-url*
+                    *uuid-namespace-x500*)
              (equalp gthr
                      '((157 173) (157 173)
                        (157 173) (157 173))))
-     (let ((utm-16 (slot-value i '%uuid_time-mid)))
+     (let ((utm-16 (slot-value i '%UUID_TIME-MID)))
        (push (multiple-value-list (uuid-disassemble-ub16 utm-16))
              gthr))))
 
@@ -248,11 +256,11 @@
  (random-state-p  *random-state-uuid*)
 
 ;;; ==============================
-;; test `uuid-request-integer', `%uuid_time-low-request',
-;; `%uuid_time-mid-request', `%uuid_time-high-and-version-request',
-;; `%uuid_clock-seq-and-reserved-request', `%uuid_clock-seq-low-request',
-;; `%uuid_node-request' with both v3 md5 and sha1 byte arrays as returned from
-;; `uuid-digest-uuid-instance'
+;;; Test `uuid-request-integer', `%uuid_time-low-request',
+;;; `%uuid_time-mid-request', `%uuid_time-high-and-version-request',
+;;; `%uuid_clock-seq-and-reserved-request', `%uuid_clock-seq-low-request',
+;;; `%uuid_node-request' with both v3 md5 and sha1 byte arrays as returned from
+;;; `uuid-digest-uuid-instance':
 
  (let ((digest-5 (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba"))
        (digest-3 (uuid-digest-uuid-instance 3 *uuid-namespace-dns* "bubba")))
@@ -321,10 +329,10 @@
       (135426222453703 135426222453703) (111246471879293 111246471879293))))
 
 ;;; ==============================
-;; Whether return value of `make-v5-uuid' and `format-v5-uuid'
-;; have `cl:equal' bit-vector representation
-;; have `cl:equalp' byte-array representation
-;; are uuid-eql (essentially a test for `uuid-bit-vector-eql')
+;;; Whether return value of `make-v5-uuid' and `format-v5-uuid'
+;;; have `cl:equal' bit-vector representation
+;;; have `cl:equalp' byte-array representation
+;;; are uuid-eql (essentially a test for `uuid-bit-vector-eql')
 
  (let ((cmp-A (make-v5-uuid *uuid-namespace-dns* "bubba"))
        (cmp-b (digested-v5-uuid (uuid-digest-uuid-instance 5 *uuid-namespace-dns* "bubba"))))
@@ -337,7 +345,7 @@
     (uuid-eql cmp-a cmp-b)))
 
 ;;; ==============================
-;; Same as above but for return value of `make-v3-uuid' and `format-v3-uuid'
+;;; Same as above but for return value of `make-v3-uuid' and `format-v3-uuid'
 
  (let ((cmp-A (make-v3-uuid *uuid-namespace-dns* "bubba"))
        (cmp-b (digested-v3-uuid
@@ -351,13 +359,6 @@
     (uuid-eql cmp-a cmp-b)))
 
 ;;; ==============================
-;; :NOTE Hopefully following three tests around `%verify-version-3-or-5',
-;; `%verify-digest-version', `uuid-digest-uuid-instance'and will catch stupid
-;; mistakes like that which occured with `%verify-digest-version' after the a
-;; change where we inadverdently moved to testing
-;;  (logbitp <VERSION> 0) instead of (logbitp 1 <VERSION>)
-;; This has was corrected with the 2011-09-01.
-;;
 ;; `%verify-version-3-or-5'
 
  (let ((v3 3)
@@ -449,10 +450,14 @@
 
 ;;; ==============================
 ;; `uuid-hex-string-36-p'
-
+;; (length (uuid-princ-to-string  (make-v4-uuid)))
  (and (uuid-hex-string-36-p (uuid-princ-to-string  (make-v4-uuid)))
       (uuid-hex-string-36-p (uuid-princ-to-string  (make-v5-uuid *uuid-namespace-dns* "bubba")))
       (uuid-hex-string-36-p (uuid-princ-to-string  (make-v3-uuid *uuid-namespace-dns* "bubba"))))
+
+
+;; (string-all-hex-char-p (uuid-princ-to-string  (make-v4-uuid)))
+;; (uuid-string-36-p (make-v3-uuid *uuid-namespace-dns* "bubba"))
 
 ;;; ==============================
 ;; `make-uuid-from-string'

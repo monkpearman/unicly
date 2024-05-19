@@ -1,4 +1,5 @@
 #!/bin/sh
+#!/bin/zsh
 #
 #
 ### ==============================
@@ -13,7 +14,7 @@
 ### I F*CKING HATE SHELL SCRIPTING!!!
 ### ==============================
 
-
+CL_MON_CODE=$DEVHOME/CL-MON-CODE
 UNICLY_SRC=$CL_MON_CODE/unicly
 UNICLY_GIT=$CL_MON_CODE/unicly-GIT
 

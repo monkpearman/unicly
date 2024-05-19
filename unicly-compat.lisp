@@ -37,7 +37,7 @@
 ;; | cards.  (Recall that the IEEE 802 spec talks about transmission
 ;; | order, which is the opposite of the in-memory representation that is
 ;; | discussed in this document.)
-;; | 
+;; |
 ;; | For compatibility with earlier specifications, note that this
 ;; | document uses the unicast/multicast bit, instead of the arguably more
 ;; | correct local/global bit.
@@ -68,9 +68,8 @@
 ;;; ==============================
 
 
-;;; ==============================
 (in-package #:unicly)
-;; *package*
+
 
 (defvar *clock-seq-uuid* 0)
 
@@ -79,9 +78,6 @@
 ;;; ==============================
 ;; :NOTE It isn't clear whether *ticks-per-count-uuid* can or should be set to
 ;; `cl:internal-time-units-per-second'
-;; As of 2011-04-23:
-;; On SBCL 1.0.47.1 this value is 1000
-;; On GNU CLISP 2.48 (2009-07-28) it is 1,000,000.
 ;; We set this to 1024 to allow declarations in `get-timestamp-uuid'
 (defvar *ticks-per-count-uuid* 1024)
 
@@ -124,11 +120,11 @@
     (the uuid-ub48 (dpb #b01 (byte 1 40) rand-node))))
 
 ;; (dpb #b01 (byte 1 40) (random #xffffffffffff *random-state-uuid*))
-;; (dpb #b00 (byte 1 40) #b111111111111111111111111111111111111111111111111) ;; 48bit
-;; (dpb #b00 (byte 1 40) #x7fffffffffff) ;;47 bit
+;; (dpb #b00 (byte 1 40) #b111111111111111111111111111111111111111111111111) ; 48bit
+;; (dpb #b00 (byte 1 40) #x7fffffffffff) ; 47 bit
 
 
-;; :NOTE closed over value uuids-this-tick should not exceed `unicly::*ticks-per-count-uuid*'.
+;; :NOTE Closed over value uuids-this-tick should not exceed `unicly::*ticks-per-count-uuid*'.
 (let ((uuids-this-tick 0)
       (last-time 0))
   (defun get-timestamp-uuid ()
@@ -219,17 +215,15 @@ closed over value of uuids-this-tick when generating timestampsfor
 `unicly:make-v1-uuid'.~%~@
 :NOTE Common Lisp provides `cl:internal-time-units-per-second' which returns a
 postive integer representing the number of internal time units in one second but
-this value is implementation-dependent. As of 2011-04-23 on SBCL 1.0.47.1 this
-value is 1000, whereas on GNU CLISP 2.48 (2009-07-28) it is 1,000,000.~%~@
+this value is implementation-dependent.~%~@
 :SEE \(info \"\(ansicl\)nternal-time-units-per-second\"\)
 :SEE :FILE sbcl/src/code/early-time.lisp
 :SEE :FILE sbcl/src/code/unix.lisp
 :EXAMPLE~%~@
  { ... <EXAMPLE> ... } ~%~@
 :SEE-ALSO `unicly::*clock-seq-uuid*',
-`sb-unix::micro-seconds-per-internal-time-unit', .~%")
+`sb-unix::micro-seconds-per-internal-time-unit'.~%")
 
-;; (eq sb-impl::*default-external-format* :UTF-8)
 
 
 ;;; ==============================

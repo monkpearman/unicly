@@ -4,7 +4,7 @@
 
 
 ;;; ==============================
-;; :NOTE ironclad utility functions
+;; :NOTE Ironclad utility functions:
 ;;
 ;; ironclad:ub16ref/le buffer index => value
 ;; ironclad:ub32ref/le buffer index => value
@@ -24,7 +24,7 @@
 
 (in-package #:unicly)
 
-
+
 ;;; ==============================
 ;;; :PASTE-AUTHOR nyef -- Alistair Bridgewater
 ;;; :PASTE-TITLE Informing loop of integer size -- how to do it idiomatically?
@@ -129,6 +129,7 @@
                   (ash b5 8)
                   (ash b6 0))))
 
+;; (uuid-disassemble-ub32  #xFFFFFFFF) => 255, 255, 255, 255
 (declaim (inline uuid-assemble-ub32))
 (defun uuid-assemble-ub32 (b1 b2 b3 b4)
   (declare (type uuid-ub8 b1 b2 b3 b4)
@@ -139,10 +140,7 @@
                   (ash b3 8)
                   (ash b4 0))))
 
-;; (uuid-disassemble-ub32  #xFFFFFFFF)
-;; 255, 255, 255, 255
-
-;(declare (inline uuid-assemble-ub16))
+;; (declare (inline uuid-assemble-ub16))
 (defun uuid-assemble-ub16 (b1 b2)
   (declare (type uuid-ub8 b1 b2)
            (optimize (speed 3)))

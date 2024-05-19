@@ -42,7 +42,7 @@
   #-:lispworks 'string
   #+:lispworks '(or cl:string
                     cl:base-string
-                    system:augmented-string 
+                    system:augmented-string
                     lispworks:text-string))
 
 (deftype simple-string-compat ()
@@ -56,8 +56,8 @@
 (deftype string-n-length-compat (size)
   ;; "Convenience shortcut to paper over differences between LispWorks and other Lisps."
   #-:lispworks `(string ,size)
-  #+:lispworks 
-  `(or 
+  #+:lispworks
+  `(or
     (cl:base-string ,size)
     (system:augmented-string ,size)
     (lispworks:text-string ,size)))
@@ -69,10 +69,10 @@
                     (system:simple-augmented-string ,size)
                     (lispworks:simple-text-string ,size)))
 
-;; (defun %uuid-string-to-octets (name-arg &key (start 0) end (external-format #+clisp charset:utf-8 #-clisp :UTF-8)) 
+;; (defun %uuid-string-to-octets (name-arg &key (start 0) end (external-format #+clisp charset:utf-8 #-clisp :UTF-8))
 #+:sbcl (declaim (inline %uuid-string-to-octets))
-(defun %uuid-string-to-octets (name-arg)   
-  ;; NAME-ARG is a string to convert to octets. 
+(defun %uuid-string-to-octets (name-arg)
+  ;; NAME-ARG is a string to convert to octets.
   ;; Characters of NAME-ARG should be encoded in UTF-8 or a subset thereof.
   ;; Convenience function for converting the NAME argument to make-v3-uuid and
   ;; make-v5-uuid prior to getting its digest with `uuid-digest-uuid-instance'
@@ -94,11 +94,11 @@
   (declare (type string-compat name-arg)
            (optimize (speed 3)))
   ;; #+:allegro (coerce (excl:string-to-octets string) 'list)
-  #+:clisp 
-  (the (simple-array (unsigned-byte 8) (*))  
+  #+:clisp
+  (the (simple-array (unsigned-byte 8) (*))
     (ext:convert-string-to-bytes name-arg CHARSET:UTF-8))
   #-(or :clisp (and :sbcl :sb-unicode))
-  (the (simple-array (unsigned-byte 8) (*))  
+  (the (simple-array (unsigned-byte 8) (*))
     (flexi-streams:string-to-octets name-arg :external-format :UTF-8))
   #+(and :sbcl :sb-unicode)
   (the (values (simple-array (unsigned-byte 8) (*)) &optional)
@@ -107,11 +107,11 @@
 ;; :NOTE we could declare convert-byte-array to be an array of length 16 or 20
 ;; If we know that uuid-octets-to-string is only called internally.
 ;;
-;; (defun %uuid-octets-to-string (convert-byte-array &key (start 0) end (external-format #+clisp charset:utf-8 #-clisp :UTF-8)) 
+;; (defun %uuid-octets-to-string (convert-byte-array &key (start 0) end (external-format #+clisp charset:utf-8 #-clisp :UTF-8))
 (defun %uuid-octets-to-string (convert-byte-array)
   (declare ((simple-array (unsigned-byte 8) (*)) convert-byte-array))
   (the simple-string-compat
-    #+:clisp 
+    #+:clisp
     (ext:convert-string-from-bytes CHARSET:UTF-8) ; :start start :end end)
     #-(or :clisp (and :sbcl :sb-unicode))
     (flexi-streams:octets-to-string convert-byte-array :external-format :UTF-8) ; :start start :end end)
@@ -148,7 +148,7 @@
 ;; SBCL> (type-of (sb-ext:string-to-octets "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" :external-format :UTF-8))
 ;; => (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (66))
 ;;
-;; LISPW> (type-of (flexi-streams:string-to-octets "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" :external-format :UTF-8)) 
+;; LISPW> (type-of (flexi-streams:string-to-octets "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" :external-format :UTF-8))
 ;; =>  '(simple-array (unsigned-byte 8) (66)))
 ;;
 ;; CLISP> (type-of (ext:convert-string-to-bytes "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" CHARSET:UTF-8))
@@ -160,8 +160,8 @@
 ;;   :external-format :UTF-8))
 ;; => (SIMPLE-ARRAY CHARACTER (36))
 ;;
-;; CLISP> (type-of 
-;;         (ext:convert-string-from-bytes 
+;; CLISP> (type-of
+;;         (ext:convert-string-from-bytes
 ;;          (ext:convert-string-to-bytes "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" charset:utf-8)
 ;;          charset:utf-8))
 ;; => (simple-base-string 36)
@@ -172,14 +172,14 @@
 ;; CLISP> (subtypep  '(simple-base-string 36) '(SIMPLE-ARRAY CHARACTER (36)))
 ;; => T, T
 ;;
-;; SBCL> (type-of 
+;; SBCL> (type-of
 ;;        (flex:octets-to-string
 ;;         (flex:string-to-octets "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" :external-format :UTF-8)
 ;;         :external-format :UTF-8))
 ;; => (SIMPLE-ARRAY CHARACTER (36))
 ;;
 ;;
-;; LispW> (type-of 
+;; LispW> (type-of
 ;;        (flex:octets-to-string
 ;;         (flex:string-to-octets "ḻfḉḲíï<òbG¦>GḜîṉí@B3Áû?ḹ<mþḩú'ÁṒ¬&]Ḏ" :external-format :UTF-8)
 ;;         :external-format :UTF-8))

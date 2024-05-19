@@ -4,13 +4,15 @@
 
 ;; :NOTE Keep the sxhash/hash-table stuff here or in a file which comes after
 ;; unicly-class.lisp otherwise the compiler complains about open coding
-
+;;
 ;; For good discussion on CL implementations of hash-tables and the underlying rational for some of the ANSI "API"
 ;; inncludes low spam-count discussion and input from: Duane Rettig, Erik
 ;; Naggum, Dan Barlow, Frode Vatvedt Fjeld, Peter Seibel, Paul F. Dietz etc.
 ;; :SEE comp.lang.lisp thread titled "(make-hash-table :test #'mytest)
-
+;;
 ;; :SEE (URL `http://groups.google.com/group/comp.lang.lisp/msg/22095b402fc80c20?dmode=source')
+;;
+;;; ==============================
 
 
 (in-package #:unicly)
@@ -21,11 +23,6 @@
   (and (<= sb-vm:n-positive-fixnum-bits 48)
        sb-vm:n-positive-fixnum-bits))
 
-;; on SBCL x86-32
-;; 1mil invocations of sxhash-uuid for array of 1mil v4uuids
-;;  0.212967 seconds of total run time (0.211968 user, 0.000999 system)
-;; 1mil invocations of cl:sxhash with same array of 1mil v4uuids
-;;  0.018997 seconds of total run time (0.018997 user, 0.000000 system)
 (defun sxhash-uuid (uuid)
   (declare (unique-universal-identifier uuid)
            (optimize (speed 3)))
@@ -80,14 +77,14 @@
   ;; :SEE-ALSO `ext:standard-stablehash', `ext:structure-stablehash',
   ;; `custom:*warn-on-hashtable-needing-rehash-after-gc*', `ext:hash-table-weak-p'.
   (declare (ignore synchronized)
-           (type (member nil :key :value :key-and-value :key-or-value) weak)) ;; &allow-other-keys ??
+           (type (member nil :key :value :key-and-value :key-or-value) weak)) ; &allow-other-keys ??
   (make-hash-table :size size
                    :rehash-size rehash-size
                    :rehash-threshold rehash-threshold
                    :test 'uuid-eql
                    :weak weakness
-                   ;; Clisp specific but see the equivalent alist-hash-fu in Alexandria 
-                   ;; or`sb-impl::%stuff-hash-table' in sbcl/src/code/target-hash-table.lisp 
+                   ;; Clisp specific but see the equivalent alist-hash-fu in Alexandria
+                   ;; or`sb-impl::%stuff-hash-table' in :FILE sbcl/src/code/target-hash-table.lisp
                    :initial-contents initial-contents))
 
 ;; LispWorks hash-tables:

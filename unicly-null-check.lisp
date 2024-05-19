@@ -2,13 +2,15 @@
 ;;; :FILE unicly/unicly-null-check.lisp
 ;;; ==============================
 
-;; helper functions for intercepting around
-;; `*uuid-allow-null-like-namespace-args*' `*uuid-allow-empty-string-name-args*'
-;; and prior to `uuid-digest-uuid-instance'.
+;;; Helper functions for intercepting around
+;;; `*uuid-allow-null-like-namespace-args*' `*uuid-allow-empty-string-name-args*'
+;;; and prior to `uuid-digest-uuid-instance'.
+;;;
+;;; ==============================
 
 
 (in-package #:unicly)
-;; *package*
+
 
 (declaim (inline %verify-non-null-namespace-arg))
 (defun %verify-non-null-namespace-arg (namespace-arg)
