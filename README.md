@@ -980,8 +980,7 @@ Some notable differences between Unicly and Tzonev's ```UUID``` library:
    * If licensing issues are a concern in your project please take a moment to
      investigate unicly/LICENSE.txt
 
-    > [!NOTE] 
-    > Although Unicly is initially derived from Tzonev's uuid library we note that
+    > Note, although Unicly is initially derived from Tzonev's uuid library we note that
     > significant portions of that library were in turn strongly derived from the
     > non-normative reference implementation source code included of RFC4122 Appendix
     > C as a wholly functional C language source code implementation of RFC4122.
