@@ -700,17 +700,21 @@ UNICLY> (unique-universal-identifier-null-p (make-null-uuid))
 ;=> T
 ```
 
-### Get the version of the null-uuid. 
+### Get the version of the null-uuid with ```UUID-VERSION-UUID```. 
+
+The null-uuid is special in that it's version is 0.
+
+```Common Lisp
+UNICLY> (uuid-version-uuid (make-null-uuid))
+;=>  0
+     UNICLY::NULL-UUID
+```
 
 > [!NOTE] 
 > The ```CL:NTH-VALUE``` 1 can be checked to verify that every bit of the UUID
 > object is 0 (as opposed to an object with a partial bit signature at bits
-> 48-51 mimicing that of the null-uuid):
-
-```Common Lisp
-UNICLY> (uuid-version-uuid (make-null-uuid))
-;=>  0, UNICLY::NULL-UUID
-```
+> 48-51 mimicing that of the null-uuid). Some care should be taken to avoid
+> inadverdently misidentifying the null-uuid. Again, the null-uuid is special.
 
 ### Testing if the null-uuid is ```UUID-EQL``` to itself:
 
