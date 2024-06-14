@@ -847,21 +847,21 @@ UNICLY> (uuid-bit-vector-eql (uuid-integer-128-to-bit-vector 3171925547739035446
                              (uuid-byte-array-to-bit-vector (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)))
 ;=> T
 ```
-## Comparing Common Lisp UUID libraries Unicly vs Boian Tzonev's UUID CL library:
+## Comparing Common Lisp UUID libraries Unicly vs Boian Tzonev's ```UUID``` CL library:
 
-Unicly has a similar interface to Boian Tzonev's Common Lisp library uuid: 
-:SEE [Boian Tzonev's CL UUID Library](URL `https://github.com/dardoria/uuid')
+Unicly has a similar interface to Boian Tzonev's Common Lisp library ```UUID```: 
+:SEE [Boian Tzonev's CL ```UUID``` Library](URL `https://github.com/dardoria/uuid')
 
-Indeed, portions of the core of Unicly API are derived from Tzonev's UUID codebase.
+Indeed, portions of the core of Unicly API are derived from Tzonev's ```UUID``` codebase.
 
-However, Unicly deviates in some not insignificant ways from Tzonev's UUID
+However, Unicly deviates in some not insignificant ways from Tzonev's ```UUID```
 library, and while we have made some attempt to create a compatibility layer
-between the two libraries the UUID objects generated with Unicly can not be used
-interchangeably with those of Tzonev's UUID library.
+between the two libraries, the UUID objects generated with Unicly can not be used
+interchangeably with those of Tzonev's ```UUID``` library.
 
-Some notable differences between Unicly and Tzonev's uuid:
+Some notable differences between Unicly and Tzonev's ```UUID``` library:
 
-* Unicly is developed on SBCL 
+* Unicly is developed on SBCL and with SBCL as it's primary targeted CL compiler.
 
    * Many routines are targeted towards making use of SBCL specific features.
 
@@ -873,7 +873,7 @@ Some notable differences between Unicly and Tzonev's uuid:
 *  Unicly is developed primarily for speedy minting of v3 and v5 UUIDs.
    On an x86-32 SBCL we have found Unicly's minting of v3 and v5 UUIDs to be
    significantly faster (at least 3-5x) than equivalent code from uuid.
-   See unicly/unicly-timings.lisp for some timing comparisons.
+   :SEE [unicly/unicly-timings.lisp](https://github.com/monkpearman/unicly/blob/master/unicly-timings.lisp) for some timing comparisons.
    
    * Unicly is not particlulary faster than uuid when minting v4 UUIDS. 
    This is to be expected as both systems depend on frobbing *random-state*
@@ -907,7 +907,7 @@ Some notable differences between Unicly and Tzonev's uuid:
    
    The above ratios are similar for the equivalent ```MAKE-V3-UUID``` functions.
    
-   Other significant performace differences can be seen between Unicly and uuid
+   Other significant performace differences can be seen between Unicly and ```UUID```
    around the respective system's ```UUID-TO-BYTE-ARRAY```, ```UUID-FROM-BYTE-ARRAY```,
    ```MAKE-UUID-FROM-STRING``` functions.
    
@@ -953,9 +953,9 @@ Some notable differences between Unicly and Tzonev's uuid:
      values. Obfuscating easy access to the class slots of
      ```UNIQUE-UNIVERSAL-IDENTIFIER``` helps prevent this.
 
-    * Because the Unicly interface is similar to that of the uuid library we've
+    * Because the Unicly interface is similar to that of the ```UUID``` library we've
       attempted to prevent trivial visual namespace collision with the slots of
-      the uuid library.  Projects using both Unicly and the uuid library may
+      the ```UUID``` library.  Projects using both Unicly and the ```UUID``` library may
       benefit from being able to easily distinguish among the two.
 
 * Unicly's printing of a UUIDs string representation is not always conformant
@@ -969,11 +969,11 @@ Some notable differences between Unicly and Tzonev's uuid:
 * Unicly's source-code is commented with references to the relevant portions of
   RFC 4122.
 
-* Unicly does not have a dependency on trivial-utf-8
+* Unicly does not have a dependency on ```TRIVIAL-UTF-8```
 
    * SBCL users can use internal features (assuming a Unicode enabled SBCL)
 
-   * non-SBCL code can (and should) use flexi-streams instead 
+   * non-SBCL code can (and should) use ```FLEXI-STREAMS``` instead.
 
 * Unicly is not released under an LLGPL licenses.
 
@@ -994,7 +994,7 @@ Some notable differences between Unicly and Tzonev's uuid:
 
    The general implementation strategy for minting v1 UUID is reliant on
    interrogation of the system's underlying hardware and clock setting [1].
-   When this is the strategy taken we have found that:
+   When this is the strategy taken, we have found that:
 
     * It requires platform and implementation specific code;
 
@@ -1033,7 +1033,7 @@ Some notable differences between Unicly and Tzonev's uuid:
    for its version because the bits are in the wrong sequence and disambiguation
    of of the various v1, v2, v3, v4, and v5 UUIDs is impossible.
    
-  :SEE [unicly/unicly-compat.lisp](https://github.com/monkpearman/unicly/blob/master/unicly-compat.lisp) for additional details/discussion.
+  Ror additional details/discussion see [unicly/unicly-compat.lisp](https://github.com/monkpearman/unicly/blob/master/unicly-compat.lisp)
 
    We could attempt to accommodate this and propagate the error onward or do the
    prudent thing and simply rely on v3, v4, v5 UUIDs instead.
