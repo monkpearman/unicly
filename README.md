@@ -644,9 +644,6 @@ UNICLY> (uuid-version-uuid *unique-random-namespace*)
 UNICLY> (uuid-version-uuid (make-v5-uuid *unique-random-namespace* "bubba-8"))
 ;=> 5
 ```
-
-## More UUID predicates:
-
 ### Using the ```UUID-BIT-VECTOR-V4-P``` predicate to test the version of a UUID object:
 
 ```Common Lisp
@@ -655,9 +652,11 @@ UNICLY> (uuid-bit-vector-v4-p (uuid-to-bit-vector *unique-random-namespace*))
 
 UNICLY> (uuid-bit-vector-v4-p (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
 ;-> nil
+```
 
 ### Using the ```UUID-BIT-VECTOR-V5-P``` predicate to test the version of a UUID object:
 
+```Common Lisp
 UNICLY> (uuid-bit-vector-v5-p (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
 ;-> T
 
