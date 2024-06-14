@@ -481,9 +481,10 @@ UNICLY> (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-rando
 ;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
 ```
 > [!NOTE]
-> Above when converting the UUID object to a byte-array, we used the internal
+> Above, when converting the UUID object to a byte-array, we used the internal
 > symbol ```UNICLY::UUID-TO-BYTE-ARRAY```. However, the preferred interface for retrieving
-> the byte-array representation of a UUID object is ```UUID:GET-NAMESPACE-BYTES```.  
+> the byte-array representation of a UUID object is ```UUID:GET-NAMESPACE-BYTES```. 
+>
 > The symbol ```UNICLY::UUID-TO-BYTE-ARRAY``` is not exported by Unicly, because it's
 > implementation conflicts with ```UUID:UUID-TO-BYTE-ARRAY``` (the two functions access
 > differently named slot values of their respective base classes
