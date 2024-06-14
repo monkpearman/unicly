@@ -119,26 +119,27 @@ at its identity, e.g.:
          (package-name  (eval `(defpackage ,pkg-name)))))
 ```
 
-In any event, the easiest way to create a new "namespace" is with MAKE-V4-UUID.
-Note, because the v4 uuid is the "random" UUID when evaluating the following
-form your return value will obv. be somewhat different :)
+In any event, the easiest way to create a <ins>reasonably random</ins> new "namespace" is with ```MAKE-V4-UUID```.
 
 ```Common Lisp
 UNICLY> (make-v4-uuid)
 ;=> 2f20bdfa-cd67-4150-8500-80c94821bbda
 ```
 
+> [!Note]
+> Because the v4 uuid is the "random" UUID when evaluating the following
+> form your return value will obv. be somewhat different :)
+
 Evaluating the above form returns the printed representation of UUID object.
 
 To cache a namespace we need to bind it to a special variable.
-Below we use a defparameter form to do this but longer running applications
+
+Below we use a defparameter form to do this but, longer running applications
 would probably use ```CL:DEFVAR``` or ```CL:DEFCONSTANT```.
 
 The easiest way to persist a UUID object is to bind its printed string
-representation. To get the string representation of a UUID we use
-```UUID-PRINC-TO-STRING```.  Note, per RFC 4122 case is significant when the string
-representation of a UUID is output, IOW, sticklers should be careful when using
-CL printing function which depend on dynamic value of ```CL*PRINT-CASE*```!
+representation.
+ To get the string representation of a UUID we use ```UUID-PRINC-TO-STRING```.  
 
 ```Common Lisp
 UNICLY> (defparameter *unique-random-namespace* 
@@ -148,6 +149,10 @@ UNICLY> (defparameter *unique-random-namespace*
 UNICLY> *UNIQUE-RANDOM-NAMESPACE*
 ;=> "77b84745-ab13-49c6-8fdc-9afaabc51c52"
 ```
+> [!Note]
+> Per RFC 4122 case is significant when the string representation of a UUID is
+> output. IOW, sticklers should be careful when using CL printing function which
+> depend on dynamic value of ```CL*PRINT-CASE*```!
 
 To convert this string back to a UUID use ```MAKE-UUID-FROM-STRING```:
 
@@ -212,7 +217,7 @@ UNICLY> (make-v5-uuid *my-fabulous-namespace* (namestring *default-pathname-defa
 ;=> c0f2a167-dae7-55c0-ad57-1d8bad0444d3
 ```
 
-Note that each object returned by MAKE-V5-UUID has unique identity under ```CL:EQUALP```:
+Note, that each object returned by MAKE-V5-UUID has unique identity under ```CL:EQUALP```:
 
 ```Common Lisp
 UNICLY> (equalp (make-v5-uuid *my-fabulous-namespace* (namestring (user-homedir-pathname)))
@@ -220,8 +225,8 @@ UNICLY> (equalp (make-v5-uuid *my-fabulous-namespace* (namestring (user-homedir-
 ;=> NIL
 ```
 
-To tests equality among two UUIDs (even where their ```CL:PRINT-OBJECT``` is
-identical) one must first convert the UUID to an intermediary format and compare
+To test equality among two UUIDs (even where their ```CL:PRINT-OBJECT``` is
+identical), one must first convert the UUID to an intermediary format and compare
 the identity of the intermediate formats instead.
 
 One way to do this is test ```CL:EQUAL``` for two UUIDs using their string representation:
@@ -235,13 +240,13 @@ UNICLY> (equal (uuid-princ-to-string
 ```
 
 ```CL:EQUAL``` finds the two UUIDs above as having identical string representations.
-However, checking string values for object identity is ugly b/c internally UUID
+However, checking string values for object identity is ugly because internally UUID
 objects are represented as unsigned integer values.
 
 Unicly provides features for comparing UUID representations in various
 intermediary formats other than as strings, and further below we present some
 examples of Unicly's representations of UUIDs in other representations which
-illustrate some alterhative (and cleaner) ways to interrogate UUID equality..
+illustrate some alterhative (and cleaner) ways to interrogate UUID equality.
 
 ## Persisting and serialzing/deserializing a UUID to file:
 
@@ -475,7 +480,8 @@ then converting that to a bit-vector:
 UNICLY> (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*))
 ;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
 ```
-> [!NOTE] Above when converting the UUID object to a byte-array, we used the internal
+> [!NOTE]
+> Above when converting the UUID object to a byte-array, we used the internal
 > symbol ```UNICLY::UUID-TO-BYTE-ARRAY```. However, the preferred interface for retrieving
 > the byte-array representation of a UUID object is ```UUID:GET-NAMESPACE-BYTES```.  
 > The symbol ```UNICLY::UUID-TO-BYTE-ARRAY``` is not exported by Unicly, because it's
@@ -509,7 +515,8 @@ UNICLY> (let ((copy (uuid-copy-uuid *unique-random-namespace*)))
 
 ### Testing if a UUID object is ```UUID-EQL``` to its byte-array representation:
 
-> [!NOTE] ```UNICLY::UUID-TO-BYTE-ARRAY``` is not exported, and it's use is nominally
+> [!NOTE]
+> ```UNICLY::UUID-TO-BYTE-ARRAY``` is not exported, and it's use is nominally
 >  deprecated (see note above). As such, the underlying implementation of this
 >  aspect of the UUID-EQL interface may to change in future versions of UNICLY!
 
@@ -653,7 +660,8 @@ UNICLY> (uuid-bit-vector-v5-p (uuid-to-bit-vector *unique-random-namespace*))
 
 The null-uuid is a special case, as such we use a dedicated inteface when frobbing it.
 
-> [!NOTE] Some special mojo occurs behind the curtains to ensure unique identity for the
+> [!NOTE]
+> Some special mojo occurs behind the curtains to ensure unique identity for the
 > null-uuid because the ```CL:SXHASH``` of the null-uuid is an intransient value.
 
 ```MAKE-NULL-UUID``` is the preferred interface for accessing the null-uuid. Use It!
@@ -677,9 +685,10 @@ UNICLY> (unique-universal-identifier-null-p (make-null-uuid))
 
 ### Get the version of the null-uuid. 
 
-> [!NOTE] The ```CL:NTH-VALUE``` 1 can be checked to verify that every bit of the UUID object
-> is 0 (as opposed to an object with a partial bit signature at bits 48-51
-> mimicing that of the null-uuid):
+> [!NOTE] 
+> The ```CL:NTH-VALUE``` 1 can be checked to verify that every bit of the UUID
+> object is 0 (as opposed to an object with a partial bit signature at bits
+> 48-51 mimicing that of the null-uuid):
 
 ```Common Lisp
 UNICLY> (uuid-version-uuid (make-null-uuid))
@@ -703,10 +712,9 @@ really it is much saner to see the UUID as a sequence of bits or bytes.
 
 Following table illustrates the components of a UUID as a bit/byte field. 
 Note, it will not display correctly in a text-editor word/line wrapping is
-enabled and/or your display is unable to lines of render text out to 140 columns
-:{
+enabled and/or your display is unable to lines of render text out to 140 columns :{
 
-The UUID as bit field:
+### The UUID as bit field:
 
 ```
  WEIGHT   INDEX      OCTETS                     BIT-FIELD-PER-OCTET
@@ -718,7 +726,7 @@ The UUID as bit field:
     6  | (80 127) | 255 255 255 255 255 255 | #*11111111 #*11111111 #*11111111 #*11111111 #*11111111 #*11111111 | %uuid_node | uuid-ub48
 ```
 
-## The UUID bit-vector representation:
+### The UUID bit-vector representation:
 
 ```Common Lisp
 UNICLY> (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba"))
@@ -732,14 +740,14 @@ UNICLY> (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba"))
 ;     |  time-low slot               | time-mid slot | time-high slot | rsvd |  low  |                node slot                      |
 ```
 
-## Other UUID representations:
-
 ### The UUIDs binary integer representation:
 
 ```Common Lisp
 UNICLY> #b11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
 ;=> 317192554773903544674993329975922389959
 ```
+
+## Other UUID representations:
 
 ### Get the byte-array reresentation of a UUIDs integer representation with ```UUID-INTEGER-128-TO-BYTE-ARRAY```:
 
@@ -983,8 +991,8 @@ Some notable differences between Unicly and Tzonev's ```UUID``` library:
    * If licensing issues are a concern in your project please take a moment to
      investigate unicly/LICENSE.txt
 
-
-    > Note, although Unicly is initially derived from Tzonev's uuid library we note that
+    > [!Note]
+    > Although Unicly is initially derived from Tzonev's uuid library we note that
     > significant portions of that library were in turn strongly derived from the
     > non-normative reference implementation source code included of RFC4122 Appendix
     > C as a wholly functional C language source code implementation of RFC4122.
