@@ -545,9 +545,9 @@ UNICLY> (uuid-eql
 ```
 ### Testing UUID bit vector equivalence with ```CL:EQUALP```:
 
-We can also test if two UUID bit-vector representations are ```CL:EQUAL```.
-We can <ins>NOT</ins> do the same for two UUID byte-array representations, instead we must
-use ```CL:EQUALP```:
+Althogh Unicly provides the function ```UUID-BIT-VECTOR-EQL``` for bit vector
+equivalence, we can also test if two UUID bit-vector representations are
+```CL:EQUAL```:
 
 ```Common Lisp
 UNICLY> (equal
@@ -559,7 +559,12 @@ UNICLY> (equal
          (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "bubba"))
          (uuid-to-bit-vector (make-v5-uuid *unique-random-namespace* "NOT-A-bubba")))
 ;=> NIL
+```
 
+Note, however, we can <ins>NOT</ins> do the same for two UUID byte-array
+representations, instead we must use ```CL:EQUALP``` for that:
+
+```Common Lisp
 UNICLY> (equal
          (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba"))
          (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "bubba")))
@@ -575,6 +580,10 @@ UNICLY> (equalp
          (uuid-get-namespace-bytes (make-v5-uuid *unique-random-namespace* "NOT-A-BUBBA")))
 ;=> NIL
 ```
+
+To circumvent using ```CL:EQUALP``` we can ```UUID-BYTE-ARRAY-TO-BIT-VECTOR```
+and then test byte-array equivalence with ```UUID-BIT-VECTOR-EQL```. See below
+for examples.
 
 ### Comparing return value of ```UUID-EQL``` with CL native equality operators:
 
