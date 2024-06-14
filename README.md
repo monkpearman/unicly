@@ -583,7 +583,7 @@ UNICLY> (equalp
 
 To circumvent using ```CL:EQUALP``` we can ```UUID-BYTE-ARRAY-TO-BIT-VECTOR```
 and then test byte-array equivalence with ```UUID-BIT-VECTOR-EQL```. See below
-for examples.
+for additional examples.
 
 ### Comparing return value of ```UUID-EQL``` with CL native equality operators:
 
