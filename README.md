@@ -239,9 +239,9 @@ However, checking string values for object identity is ugly b/c internally UUID
 objects are represented as unsigned integer values.
 
 Unicly provides features for comparing UUID representations in various
-intermediary formats other than as strings and further below we present some
-examples of Unicly's representations of UUIDs in forms other than strings and
-illustrate some cleaner ways to interrogate UUID equality (see below).
+intermediary formats other than as strings, and further below we present some
+examples of Unicly's representations of UUIDs in other representations which
+illustrate some alterhative (and cleaner) ways to interrogate UUID equality..
 
 ## Persisting and serialzing/deserializing a UUID to file:
 
@@ -293,7 +293,7 @@ We use the value of the v4-uuid in the variable ```*unique-random-namespace*```
 defined earlier above, but feel free to substitute ```*my-fabulous-namespace*``` (or
 equivalent).
 
-Testing the equivalence of two UUID objects:
+## Testing the equivalence of two UUID objects with ```UUID-EQL```:
 
 ```Common Lisp
 UNICLY> (uuid-eql 
@@ -302,7 +302,7 @@ UNICLY> (uuid-eql
 ;=> T
 ```
 
-Printing a UUID object in hex-string-36 format:
+## Printing a UUID object in hex-string-36 format with ```UUID-PRINC-TO-STRING```:
 
 ```Common Lisp
 UNICLY> (uuid-princ-to-string (make-v5-uuid *unique-random-namespace* "bubba"))
@@ -311,7 +311,7 @@ UNICLY> (uuid-princ-to-string (make-v5-uuid *unique-random-namespace* "bubba"))
 
 Testing equivalence of two UUID objects where the first is generated using
 ```MAKE-V5-UUID``` and the second is generated from an equivelent hex-string-36
-representation:
+representation as per ```MAKE-UUID-FROM-STRING```:
 
 ```Common Lisp
 UNICLY> (uuid-eql 
@@ -320,8 +320,9 @@ UNICLY> (uuid-eql
 ;=> T
 ```
 
-Binding a variable *another-unique-random-namespace* for use as a namespace.
-We initally bind it to the hex-string-36 representation of a v4 UUID:
+Binding a variable *another-unique-random-namespace* for use as a namespace.  We
+initally bind it to the hex-string-36 representation of a v4 UUID per the return
+value of ```UUID-PRINC-TO-STRING```:
 
 ```Common Lisp
 UNICLY> (defparameter *another-unique-random-namespace* 
@@ -370,8 +371,9 @@ UNICLY> (loop
 ;     (f3228291-0a24-5a46-a9e2-7963d4671069 . "bubba-0"))
 ```
 
-Retrieving the UUID for the name "bubba-8" in the namespace
-```*unique-random-namespace*```:
+Retrieving the UUID for the name "bubba-8" in the namespace ```*unique-random-namespace*```:
+
+## Retrieving a UUID  using ```CL:ASSOC```'s with ```UUID-EQL``` as ```:TEST``` keyword: 
 
 ```Common Lisp
 UNICLY> (assoc 
@@ -381,8 +383,7 @@ UNICLY> (assoc
 ;=> (8e64c855-70fd-5d53-82ce-67e545f724a1 . "bubba-8")
 ```
 
-Retrieving the UUID for the name "bubba-8" in the namespace
-```*another-unique-random-namespace*```:
+Retrieving the UUID for the name "bubba-8" in the namespace```*another-unique-random-namespace*```:
 
 ```Common Lisp
 UNICLY> (assoc 
@@ -392,8 +393,7 @@ UNICLY> (assoc
 ;=> (ef74e326-4ecc-5edc-9b55-e69e6069610a . "bubba-8")
 ```
 
-Testing if two identical names can be ```UUID-EQL``` when each occupies a different
-namespace:
+## Testing if two identical names can be ```UUID-EQL``` when each occupies a different namespace:
 
 ```Common Lisp
 UNICLY> (uuid-eql 
@@ -402,8 +402,7 @@ UNICLY> (uuid-eql
 ;=> NIL
 ```
 
-Testing if two identical names can be ```UUID-EQL``` when each occupies the same
-namespace:
+## Testing if two identical names can be ```UUID-EQL``` when each occupies the same namespace:
 
 ```Common Lisp
 UNICLY> (uuid-eql 
@@ -425,7 +424,7 @@ UNICLY> (uuid-to-bit-vector *unique-random-namespace*)
 ```
 ## UUID Predicate:
 
-Testing with UNIQUE-UNIVERSAL-IDENTIFIER-P whether the value of
+Testing with ```UNIQUE-UNIVERSAL-IDENTIFIER-P``` whether the value of
 ```*unique-random-namespace*``` is an instance of class ```UNIQUE-UNIVERSAL-IDENTIFIER```:
 
 ```Common Lisp
@@ -434,7 +433,7 @@ UNICLY> (unique-universal-identifier-p *unique-random-namespace*)
 ```
 
 When testing an object with ```UNIQUE-UNIVERSAL-IDENTIFIER-P```, if the object is a
-bit-vector and the form of that bit-vector satisfies ```UUID-BIT-VECTOR-128-P```, and
+bit-vector, and the form of that bit-vector satisfies ```UUID-BIT-VECTOR-128-P```, and
 the appropriate version bit of the bit-vector is set, indication is given that
 the bit-vector may be coerceable to an object which would satisfy
 ```UNIQUE-UNIVERSAL-IDENTIFIER-P```. This indication is provided as the ```CL:NTH-VALUE``` 1
@@ -442,7 +441,8 @@ as illustrated by the following return value:
 
 ```Common Lisp
 UNICLY> (unique-universal-identifier-p (uuid-to-bit-vector *unique-random-namespace*))
-;=> NIL, (UUID-BIT-VECTOR-128 4)
+;=> NIL 
+    (UUID-BIT-VECTOR-128 4)
 ```
 
 Testing whether the null-uuid satisfies ```UNIQUE-UNIVERSAL-IDENTIFIER-P```:
@@ -461,7 +461,7 @@ UNICLY> (uuid-bit-vector-to-integer (uuid-to-bit-vector *unique-random-namespace
 ;=> 159134959691145724577639637335874542674
 ```
 
-Converting a UUID to byte-array reresentation with ```UNICLY::UUID-TO-BYTE-ARRAY```:
+### Converting a UUID to byte-array reresentation with ```UNICLY::UUID-TO-BYTE-ARRAY```:
 
 ```Common Lisp
 UNICLY> (unicly::uuid-to-byte-array *unique-random-namespace*)
@@ -484,7 +484,7 @@ UNICLY> (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-rando
 > differently named slot values of their respective base classes
 > ```UNICLY:UNIQUE-UNIVERSAL-IDENTIFIER``` vs. ```UUID:UUID```).
 
-## More UUID equality interrogation:
+## More UUID equality interrogations with ```UUID-EQL```:
 
 ### Testing if a UUID object is ```UUID-EQL``` to itself:
 
@@ -508,7 +508,7 @@ UNICLY> (let ((copy (uuid-copy-uuid *unique-random-namespace*)))
 ;=> T
 ```
 
-### Testing if a UUID object is ```UUID-EQL``` to its byte-array representation.
+### Testing if a UUID object is ```UUID-EQL``` to its byte-array representation:
 
 > [!NOTE]
 > ```UNICLY::UUID-TO-BYTE-ARRAY``` is not exported, and it's use is nominally
@@ -538,7 +538,7 @@ UNICLY> (uuid-eql
          (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*)))
 ;=> T
 ```
-### Testing UUID bit vector equivalence with ```CL:EQUALP```
+### Testing UUID bit vector equivalence with ```CL:EQUALP```:
 
 > [!Note] 
 > we can also test if two UUID bit-vector representations are ```CL:EQUAL```.
@@ -572,24 +572,39 @@ UNICLY> (equalp
 ;=> NIL
 ```
 
+### Comparing return value of ```UUID-EQL``` with CL builtin operators:
+
+ ```CL:EQ```, ```CL:EQL```,
+```CL:EQUAL```, ```CL:EQUALP```, and ```CL:SXHASH```:
+
+```Common Lisp
+UNICLY> (let* ((uuid-1    (make-v5-uuid *uuid-namespace-dns* "bubba"))
+               (uuid-1-bv (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
+               (uuid-2    (uuid-from-bit-vector uuid-1-bv)))
+          (list :uuid-eql (uuid-eql uuid-1 uuid-2)
+                :eq       (eq uuid-1 uuid-2)
+                :eql      (eql uuid-1 uuid-2) 
+                :equal    (equal uuid-1 uuid-2)
+                :equalp   (equalp uuid-1 uuid-2)
+                :sxhash   (list (sxhash uuid-1) (sxhash uuid-2))))
+;=> (:UUID-EQL T :EQ NIL :EQL NIL :EQUAL NIL :EQUALP NIL :SXHASH (121011444 363948070))
+```
+
 ## Round-tripping UUID representations:
 
 Below is an example of round-tripping a UUID as follows:
 
-```
- uuid -> bit-vector -> uuid -> byte-array -> bit-vector -> uuid 
-  -> byte-array -> uuid -> uuid-string-36 -> uuid
-```
+ > uuid -> bit-vector -> uuid -> byte-array -> bit-vector -> uuid 
+ >  -> byte-array -> uuid -> uuid-string-36 -> uuid
 
-First, we verify the identity of the name "bubba" in the ```*UUID-NAMESPACE-DNS*```
-namespace:
+First, we verify the identity of the name "bubba" in the ```*UUID-NAMESPACE-DNS*``` namespace:
 
 ```Common Lisp
 UNICLY> (make-v5-uuid *uuid-namespace-dns* "bubba")
 ;=> eea1105e-3681-5117-99b6-7b2b5fe1f3c7
 ```
 
-Does the roundtripping return an equivalent object?:
+Does the round-tripping return an equivalent object?
 
 ```Common Lisp
 UNICLY> (make-uuid-from-string
@@ -612,22 +627,6 @@ UNICLY> (uuid-eql * (make-v5-uuid *uuid-namespace-dns* "bubba"))
 ;=> T
 ```
 
-Comparing return value of ```UUID-EQL``` with CL builtin operators ```CL:EQ```, ```CL:EQL```,
-```CL:EQUAL```, ```CL:EQUALP```, and ```CL:SXHASH```:
-
-```Common Lisp
-UNICLY> (let* ((uuid-1    (make-v5-uuid *uuid-namespace-dns* "bubba"))
-               (uuid-1-bv (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
-               (uuid-2    (uuid-from-bit-vector uuid-1-bv)))
-          (list :uuid-eql (uuid-eql uuid-1 uuid-2)
-                :eq       (eq uuid-1 uuid-2)
-                :eql      (eql uuid-1 uuid-2) 
-                :equal    (equal uuid-1 uuid-2)
-                :equalp   (equalp uuid-1 uuid-2)
-                :sxhash   (list (sxhash uuid-1) (sxhash uuid-2))))
-;=> (:UUID-EQL T :EQ NIL :EQL NIL :EQUAL NIL :EQUALP NIL :SXHASH (121011444 363948070))
-```
-
 ## UUID Integer Representation:
 
 Get the integer version of a UUID object:
@@ -642,12 +641,14 @@ UNICLY> (uuid-version-uuid (make-v5-uuid *unique-random-namespace* "bubba-8"))
 
 ## More UUID predicates:
 
-Using a predicate to test the version of a UUID object:
+### Using the ```UUID-BIT-VECTOR-V4-P``` predicate to test the version of a UUID object:
 
 ```Common Lisp
 UNICLY> (uuid-bit-vector-v4-p (uuid-to-bit-vector *unique-random-namespace*))
 ;=> T
- 
+
+### Using the ```UUID-BIT-VECTOR-V5-P``` predicate to test the version of a UUID object:
+
 UNICLY> (uuid-bit-vector-v5-p (uuid-to-bit-vector *unique-random-namespace*))
 ;=> NIL
 ```
@@ -659,6 +660,8 @@ The null-uuid is a special case, as such we use a dedicated inteface when frobbi
 > Some special mojo occurs behind the curtains to ensure unique identity for the
 > null-uuid because the ```CL:SXHASH``` of the null-uuid is an intransient value.
 
+```MAKE-NULL-UUID``` is the preferred interface for accessing the null-uuid. Use It!
+
 ### Generating an instance of the null-uuid with ```MAKE-NULL-UUID```:
 
 ```Common Lisp
@@ -666,9 +669,10 @@ UNICLY> (make-null-uuid)
 ;=> 00000000-0000-0000-0000-000000000000
 ```
 
-```MAKE-NULL-UUID``` is the preferred interface for accessing the null-uuid, we can
-test if its return-value is an instance of class
-```UNIQUE-UNIVERSAL-IDENTIFIER-NULL``` with ```UNIQUE-UNIVERSAL-IDENTIFIER-NULL-P```:
+### The predicate```UNIQUE-UNIVERSAL-IDENTIFIER-NULL-P```:
+
+WE can test if return-value of ```MAKE-NULL-UUID``` is an instance of class
+```UNIQUE-UNIVERSAL-IDENTIFIER-NULL``` with the predicate```UNIQUE-UNIVERSAL-IDENTIFIER-NULL-P```:
 
 ```Common Lisp
 UNICLY> (unique-universal-identifier-null-p (make-null-uuid))
@@ -742,7 +746,7 @@ UNICLY> #b1110111010100001000100000101111000110110100000010101000100010111100110
 ;=> 317192554773903544674993329975922389959
 ```
 
-### The byte-array reresentation of a UUIDs integer representation:
+### Get the byte-array reresentation of a UUIDs integer representation with ```UUID-INTEGER-128-TO-BYTE-ARRAY```:
 
 ```Common Lisp
 UNICLY> (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)
@@ -761,7 +765,7 @@ UNICLY> (map 'list #'uuid-octet-to-bit-vector-8
 ;    #*10011001 #*10110110 #*01111011 #*00101011 #*01011111 #*11100001 #*11110011 #*11000111)
 ```
 
-### Converting from UUID -> byte-array -> bit-vector:
+### Converting from UUID -> byte-array -> bit-vector with ```UUID-BYTE-ARRAY-TO-BIT-VECTOR```:
 
 ```Common Lisp
 UNICLY> (uuid-byte-array-to-bit-vector (uuid-to-byte-array (make-v5-uuid *uuid-namespace-dns* "bubba")))
@@ -774,20 +778,24 @@ UNICLY> #b1111111111111111111111111111111111111111111111111111111111111111111111
 ;=> 340282366920938463463374607431768211455
 ``` 
 
-The number of unsigned bits used to represent the upper bounds of a UUIDs
-integer representation:
+### Finding the number of unsigned bits used to represent the upper bounds of a UUID:
+
+We can interrogate the  unsigned bits of a UUIDs integer representation with ```CL:INTEGER-LENGTH```:
 
 ```Common Lisp
 UNICLY> (integer-length 340282366920938463463374607431768211455) 
 ;=> 128
 ```
-The octet count of the upper bounds of a UUIDs integer representation:
+### Finding the octet count of the upper bounds of a UUIDs integer representation:
 
 ```Common Lisp
 UNICLY> (truncate (integer-length 340282366920938463463374607431768211455) 8)
 ;=> 16
 ```
-The upper bounds of UUID in decimal integer representation (longform):
+### Getting the upper bounds of UUID in decimal integer representation (longform):
+
+With ```CL:FORMAT```'s ```"~R"``` flag we can get a long form printed
+representation of a UUID's decimal integer representation as follows:
 
 ```Common Lisp
 UNICLY> (format t "~R" 340282366920938463463374607431768211455)
@@ -799,7 +807,7 @@ UNICLY> (format t "~R" 340282366920938463463374607431768211455)
 ;   eleven thousand four hundred fifty-five
 ```
 
-### Converting from a UUID bit-vector representation to an integer:
+### Converting from a UUID bit-vector representation to an integer with ```UUID-BIT-VECTOR-TO-INTEGER```:
 
 ```Common Lisp
 UNICLY> (uuid-bit-vector-to-integer (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
@@ -811,7 +819,7 @@ UNICLY> (uuid-bit-vector-to-integer (uuid-to-bit-vector (make-v5-uuid *uuid-name
 UNICLY> (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)
 ;=> #(238 161 16 94 54 129 81 23 153 182 123 43 95 225 243 199)
 ```
-### Converting from a UUID byte-array representation to a  UUID integer representation:
+### Converting from a UUID byte-array representation to a UUID integer representation with ```UUID-BYTE-ARRAY-16-TO-INTEGER```:
 
 ```Common Lisp
 UNICLY> (uuid-byte-array-16-to-integer 
@@ -846,6 +854,7 @@ UNICLY> (uuid-bit-vector-eql (uuid-integer-128-to-bit-vector 3171925547739035446
                              (uuid-byte-array-to-bit-vector (uuid-integer-128-to-byte-array 317192554773903544674993329975922389959)))
 ;=> T
 ```
+
 ## Comparing Common Lisp UUID libraries Unicly vs Boian Tzonev's ```UUID``` CL library:
 
 Unicly has a similar interface to Boian Tzonev's Common Lisp library ```UUID```: 
