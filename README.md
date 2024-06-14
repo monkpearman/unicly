@@ -633,7 +633,7 @@ UNICLY> (make-uuid-from-string
 ;=> eea1105e-3681-5117-99b6-7b2b5fe1f3c7
 ```
 
-Is previously ealuated result ```UUID-EQL``` to itself?
+Is previously evaluated result ```UUID-EQL``` to itself?
 
 ```Common Lisp
 UNICLY> (uuid-eql * (make-v5-uuid *uuid-namespace-dns* "bubba"))
