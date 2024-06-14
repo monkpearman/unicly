@@ -475,8 +475,7 @@ then converting that to a bit-vector:
 UNICLY> (uuid-byte-array-to-bit-vector (unicly::uuid-to-byte-array *unique-random-namespace*))
 ;=> #*01110111101110000100011101000101101010110001001101001001110001101000111111011100100110101111101010101011110001010001110001010010
 ```
-> [!NOTE]
-> Above when converting the UUID object to a byte-array, we used the internal
+> [!NOTE] Above when converting the UUID object to a byte-array, we used the internal
 > symbol ```UNICLY::UUID-TO-BYTE-ARRAY```. However, the preferred interface for retrieving
 > the byte-array representation of a UUID object is ```UUID:GET-NAMESPACE-BYTES```.  
 > The symbol ```UNICLY::UUID-TO-BYTE-ARRAY``` is not exported by Unicly, because it's
@@ -510,8 +509,7 @@ UNICLY> (let ((copy (uuid-copy-uuid *unique-random-namespace*)))
 
 ### Testing if a UUID object is ```UUID-EQL``` to its byte-array representation:
 
-> [!NOTE]
-> ```UNICLY::UUID-TO-BYTE-ARRAY``` is not exported, and it's use is nominally
+> [!NOTE] ```UNICLY::UUID-TO-BYTE-ARRAY``` is not exported, and it's use is nominally
 >  deprecated (see note above). As such, the underlying implementation of this
 >  aspect of the UUID-EQL interface may to change in future versions of UNICLY!
 
@@ -540,9 +538,8 @@ UNICLY> (uuid-eql
 ```
 ### Testing UUID bit vector equivalence with ```CL:EQUALP```:
 
-> [!Note] 
-> we can also test if two UUID bit-vector representations are ```CL:EQUAL```.
-> We can not do the same for two UUID byte-array representations, instead we must
+> [!Note] We can also test if two UUID bit-vector representations are ```CL:EQUAL```.
+> We can <ins>NOT</ins> do the same for two UUID byte-array representations, instead we must
 > use ```CL:EQUALP```:
 
 ```Common Lisp
@@ -656,8 +653,7 @@ UNICLY> (uuid-bit-vector-v5-p (uuid-to-bit-vector *unique-random-namespace*))
 
 The null-uuid is a special case, as such we use a dedicated inteface when frobbing it.
 
-> [!NOTE]
-> Some special mojo occurs behind the curtains to ensure unique identity for the
+> [!NOTE] Some special mojo occurs behind the curtains to ensure unique identity for the
 > null-uuid because the ```CL:SXHASH``` of the null-uuid is an intransient value.
 
 ```MAKE-NULL-UUID``` is the preferred interface for accessing the null-uuid. Use It!
@@ -681,8 +677,7 @@ UNICLY> (unique-universal-identifier-null-p (make-null-uuid))
 
 ### Get the version of the null-uuid. 
 
-> [!NOTE]
-> The ```CL:NTH-VALUE``` 1 can be checked to verify that every bit of the UUID object
+> [!NOTE] The ```CL:NTH-VALUE``` 1 can be checked to verify that every bit of the UUID object
 > is 0 (as opposed to an object with a partial bit signature at bits 48-51
 > mimicing that of the null-uuid):
 
