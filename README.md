@@ -1,4 +1,4 @@
-# DESCRIPTION:
+# Unicly Description
 
 Unicly is a Common Lisp library for generation of UUIDs (Universally Unique
 Identifiers) as described by RFC 4122.
@@ -11,10 +11,10 @@ In past, Unicly has successfully compiled on Clisp, and Lispworks without
 complication. Porting or translations should be trivial. Patches/Pulls welcome.
 
 Please do let us know if you can confirm whether Unicly is known to build on
-your platform and implementation. Patches Welcom :)
+your platform and implementation. Again, Patches Welcome :)
 
 
-# INSTALLATION:
+# Unicly installation
 
 ```
 SHELL> cd /parent/dir/where/you/put/cl-repos/
@@ -39,7 +39,7 @@ Or for the perverse who'd like to see what their lisp can't optimize away:
 CL-USER> (quicklisp:quickload 'unicly :verbose t :explain t)
 ```
 
-# USAGE:
+# Unicly Usage
 
 ```Common Lisp
 (in-package #:unicly)
@@ -65,7 +65,7 @@ UNICLY> *uuid-namespace-x500*
 ;=> 6ba7b814-9dad-11d1-80b4-00c04fd430c8
 ```
 
-## v4 UUID NAMESPACES:
+## v4 UUID Namespaces:
 
 The above "namespaces" are "canonical" in so much as they are presented by the RFC.
 
@@ -89,8 +89,8 @@ The second of these is a v4 or random UUID. This is Unicly's preferred interface
 for creation of an initial namespace. 
 
 Once one has a handle on an initial UUID namespace that namespace may then be
-leveraged to create any number of new UUID namespaces using MAKE-V3-UUID OR
-MAKE-V5-UUID. This is a commonly overlooked/misunderstood aspect of RFC 4122!
+leveraged to create any number of new UUID namespaces using ```MAKE-V3-UUID``` OR
+```MAKE-V5-UUID```. This is a commonly overlooked/misunderstood aspect of RFC 4122!
 
 So, to be clear, the real utility of UUIDs isn't by way of the more pedestrian
 v1 and v4 UUIDs, but rather by utilization of v3 and v5 UUIDs in a manner
@@ -150,7 +150,7 @@ UNICLY> *UNIQUE-RANDOM-NAMESPACE*
 ;=> "77b84745-ab13-49c6-8fdc-9afaabc51c52"
 ```
 
-To convert this string back to a UUID use MAKE-UUID-FROM-STRING:
+To convert this string back to a UUID use ```MAKE-UUID-FROM-STRING```:
 
 ```Common Lisp
 UNICLY> (setf *unique-random-namespace* 
@@ -161,7 +161,7 @@ UNICLY> *unique-random-namespace*
 ;=> 77b84745-ab13-49c6-8fdc-9afaabc51c52
 ```
 
-To print a UUID with a URN quailifier use UUID-AS-URN-STRING:
+To print a UUID with a URN quailifier use ```UUID-AS-URN-STRING```:
 
 ```Common Lisp
 UNICLY> (uuid-as-urn-string nil *unique-random-namespace*)
@@ -176,9 +176,9 @@ representation with each session if desired.
 However, as indicated above a v4 UUID is best used as a "seed-value" for
 generating a namespace which is unique to your application.
 
-## v4 UUID NAMESPACES:
+## v4 UUID Namespaces:
 
-For persistent UUID solutions it is recommended to use MAKE-V5-UUID by
+For persistent UUID solutions it is recommended to use ```MAKE-V5-UUID``` by
 providing a persisted UUID namespace for an object to reside in.
 
 You can make your own fabulous namespace like this:
@@ -225,7 +225,7 @@ To tests equality among two UUIDs (even where their ```CL:PRINT-OBJECT``` is
 identical) one must first convert the UUID to an intermediary format and compare
 the identity of the intermediate formats instead.
 
-One way to do this is test CL:EQUAL for two UUIDs using their string representation:
+One way to do this is test ```CL:EQUAL``` for two UUIDs using their string representation:
 
 ```Common Lisp
 UNICLY> (equal (uuid-princ-to-string 
@@ -330,7 +330,7 @@ UNICLY> (defparameter *another-unique-random-namespace*
 ;=> *ANOTHER-UNIQUE-RANDOM-NAMESPACE*
 ```
 
-Binding the *another-unique-random-namespace* variable to a UUID object:
+Binding the ```*another-unique-random-namespace*``` variable to a UUID object:
 
 ```Common Lisp
 UNICLY> (setf *another-unique-random-namespace*
@@ -346,10 +346,10 @@ UNICLY> (defparameter *v5-uuids-in-distinct-unique-random-namespaces* '())
 ;=> *V5-UUIDS-IN-DISTINCT-UNIQUE-RANDOM-NAMESPACES*
 ```
 
-Adding 32 v5 UUIDS to the container where each is a cons with the head of each
+Adding 32 v5 UUIDs to the container where each is a cons with the head of each
 cons a UUID object and the tail the name of some object in a namespace.
-For each name we create two UUIDs one will occupy the namespace
-```*unique-random-namespace*``` the other will occupy the namepsace
+For each name we create two UUIDs, one will occupy the namespace
+```*unique-random-namespace*```, the other will occupy the namepsace
 ```*another-unique-random-namespace*```:
 
 ```Common Lisp
@@ -393,7 +393,7 @@ UNICLY> (assoc
 ;=> (ef74e326-4ecc-5edc-9b55-e69e6069610a . "bubba-8")
 ```
 
-Testing if two identical names can be UUID-EQL when each occupies a different
+Testing if two identical names can be ```UUID-EQL``` when each occupies a different
 namespace:
 
 ```Common Lisp
@@ -403,7 +403,7 @@ UNICLY> (uuid-eql
 ;=> NIL
 ```
 
-Testing if two identical names can be UUID-EQL when each occupies the same
+Testing if two identical names can be ```UUID-EQL``` when each occupies the same
 namespace:
 
 ```Common Lisp
