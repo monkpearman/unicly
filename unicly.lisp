@@ -325,7 +325,7 @@
 ;; |  2) Set the four most significant bits (bits 12 through 15) of the
 ;; |     time_hi_and_version field to the 4-bit version number from Section 4.1.3.
 ;; |     `-> Slot `%uuid_time-high-and-version' e.g. #*0100
-;; |     :NOTE Correspond with step 6 for v3 and v5 which sets top bits 
+;; |     :NOTE Correspond with step 6 for v3 and v5 which sets top bits
 ;; |     #*01010 for SHA1 or #*0011 for MD5 with `%uuid_time-high-and-version-request'
 ;; |
 ;; |  3) Set all the other bits to randomly (or pseudo-randomly) chosen
