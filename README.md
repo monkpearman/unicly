@@ -545,9 +545,9 @@ UNICLY> (uuid-eql
 ```
 ### Testing UUID bit vector equivalence with ```CL:EQUALP```:
 
-> [!Note] We can also test if two UUID bit-vector representations are ```CL:EQUAL```.
-> We can <ins>NOT</ins> do the same for two UUID byte-array representations, instead we must
-> use ```CL:EQUALP```:
+We can also test if two UUID bit-vector representations are ```CL:EQUAL```.
+We can <ins>NOT</ins> do the same for two UUID byte-array representations, instead we must
+use ```CL:EQUALP```:
 
 ```Common Lisp
 UNICLY> (equal
@@ -631,9 +631,11 @@ UNICLY> (uuid-eql * (make-v5-uuid *uuid-namespace-dns* "bubba"))
 ;=> T
 ```
 
-## UUID Integer Representation:
+## UUID Version Number Integer Representation:
 
-Get the integer version of a UUID object:
+We can interrogate a UUID object to find it's version.
+
+### Get the integer version of a UUID object with ```UUID-VERSION-UUID```:
 
 ```Common Lisp
 UNICLY> (uuid-version-uuid *unique-random-namespace*)
@@ -651,11 +653,18 @@ UNICLY> (uuid-version-uuid (make-v5-uuid *unique-random-namespace* "bubba-8"))
 UNICLY> (uuid-bit-vector-v4-p (uuid-to-bit-vector *unique-random-namespace*))
 ;=> T
 
+UNICLY> (uuid-bit-vector-v4-p (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;-> nil
+
 ### Using the ```UUID-BIT-VECTOR-V5-P``` predicate to test the version of a UUID object:
 
-UNICLY> (uuid-bit-vector-v5-p (uuid-to-bit-vector *unique-random-namespace*))
+UNICLY> (uuid-bit-vector-v5-p (uuid-to-bit-vector (make-v5-uuid *uuid-namespace-dns* "bubba")))
+;-> T
+
+UNICLY> (uuid-bit-vector-v5-p (uuid-to-bit-vector (make-v4-uuid)))
 ;=> NIL
 ```
+
 ## The UUID null-uuid:
 
 The null-uuid is a special case, as such we use a dedicated inteface when frobbing it.
