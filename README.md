@@ -4,8 +4,7 @@ Unicly is a Common Lisp library for generation of UUIDs (Universally Unique
 Identifiers) as described by RFC 4122.
 
 
-As of 05-16-2024 Unicly is known to compile on: 
-   SBCL 2.4.1  (on Darwin Arm64) [1]
+As of 05-16-2024 Unicly is known to compile on SBCL 2.4.1 (on Darwin Arm64).
 
 In past, Unicly has successfully compiled on Clisp, and Lispworks without
 complication. Porting or translations should be trivial. Patches/Pulls welcome.
@@ -980,6 +979,7 @@ Some notable differences between Unicly and Tzonev's ```UUID``` library:
    * If licensing issues are a concern in your project please take a moment to
      investigate unicly/LICENSE.txt
 
+
     > Note, although Unicly is initially derived from Tzonev's uuid library we note that
     > significant portions of that library were in turn strongly derived from the
     > non-normative reference implementation source code included of RFC4122 Appendix
@@ -1013,12 +1013,12 @@ Some notable differences between Unicly and Tzonev's ```UUID``` library:
       v5 variants. There are numerous mechanisms by which a v1 UUID can
       become corrupted which simply do not affect the others.
 
-   [1]  RFC 4122 Section 4.5 "Node IDs that Do Not Identify the Host"
+   [^1]  RFC 4122 Section 4.5 "Node IDs that Do Not Identify the Host"
    Suggests that a v1 UUID may also be minted from a "47-bit cryptographic
    quality random number" by using it as the bottom 47 bits of the UUID Node id
    and setting the LSB of the first octet of the UUID node id to 1.
    Unfortunately, when attempting to implement this alternative strategy we found that
-   Tzonev's uuid library has what we believe to be a bug in uuid:get-node-id in
+   Tzonev's uuid library has what we believe to be a bug in ```UUID:GET-NODE-ID``` in
    that it sets bit 0 of the the LS-Byte of a 48bit integer with:
 
    ```Common Lisp
