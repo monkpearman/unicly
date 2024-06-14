@@ -576,10 +576,10 @@ UNICLY> (equalp
 ;=> NIL
 ```
 
-### Comparing return value of ```UUID-EQL``` with CL builtin operators:
+### Comparing return value of ```UUID-EQL``` with CL native equality operators:
 
- ```CL:EQ```, ```CL:EQL```,
-```CL:EQUAL```, ```CL:EQUALP```, and ```CL:SXHASH```:
+Following form illustrates UUID equality as compared with the CL native equality tests, namel:
+```CL:EQ```, ```CL:EQL```, ```CL:EQUAL```, ```CL:EQUALP```, and ```CL:SXHASH```:
 
 ```Common Lisp
 UNICLY> (let* ((uuid-1    (make-v5-uuid *uuid-namespace-dns* "bubba"))
