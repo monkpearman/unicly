@@ -935,10 +935,9 @@ Some notable differences between Unicly and Tzonev's uuid:
    This feature is specified in RFC 4122 Section 3. "Namespace Registration Template"
    as follows:
 
-    ,----
-    | The hexadecimal values "a" through "f" are output as lower case characters
-    | and are case insensitive on input.
-    `----
+    > The hexadecimal values "a" through "f" are output as lower case characters
+    > and are case insensitive on input.
+    
 
 * Unicly defines its base UUID class as ```UNIQUE-UNIVERSAL-IDENTIFIER```, instead of
   as the class UUID.
