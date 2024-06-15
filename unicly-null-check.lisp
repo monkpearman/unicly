@@ -37,13 +37,13 @@
 (defun %verify-non-empty-name-arg (name-arg)
   ;; (values uuid-byte-array &optional)
   (declare (type string-compat name-arg)
-           (inline 
+           (inline
              #+:sbcl %uuid-string-to-octets
              %string-not-empty-p)
            (optimize (speed 3)))
   ;; :NOTE %uuid-string-to-octets hardwires :external-format :UTF-8
   (the (values uuid-byte-array &optional)
-    (%uuid-string-to-octets 
+    (%uuid-string-to-octets
      (the (values string-compat &optional)
        (if *uuid-allow-empty-string-name-args*
            name-arg
