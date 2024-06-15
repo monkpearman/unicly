@@ -26,7 +26,6 @@
   :name "unicly"
   :licence "MIT"
   :version "2024.03.13"
-  ;; :maintainer "MON KEY"
   :maintainer #.*author-maintainer-contact*
   :description "UUID Generation per RFC 4122"
   :long-description "UUID implementation for Common Lisp as per RFC 4122"
