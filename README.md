@@ -290,6 +290,135 @@ use other intermediary representations of your UUIDs. Unicly provides interfaces
 for reading, writing, and converting UUIDs across various representations
 including bit-vectors, byte-arrays, 128-bit integers, strings, etc.
 
+Write a UUID byte-array to file with ```UUID-SERIALIZE-BYTE-ARRAY-BYTES```:
+
+```Common Lisp
+UNICLY> (let ((file (make-pathname :directory '(:absolute "tmp")
+                                   :name "temp-bytes"))
+              (w-uuid (make-v5-uuid *uuid-namespace-dns* "bubba"))
+              (gthr '()))
+          (with-open-file (s file
+                             :if-exists :supersede
+                             :if-does-not-exist :create
+                             :direction :output
+                             :element-type 'uuid-ub8)
+            (uuid-serialize-byte-array-bytes  w-uuid s))
+          ;; read the byte-array back in
+          (with-open-file (stream file :element-type 'uuid-ub8)
+            (do ((code (read-byte stream nil :eof) (read-byte stream nil :eof)))
+                ((eql code :eof))
+              (push code gthr)))
+          (and gthr
+               (setf gthr (uuid-from-byte-array (make-array 16
+                                                            :element-type 'uuid-ub8
+                                                            :initial-contents (nreverse gthr)))))
+          (unwind-protect
+               (list (uuid-eql w-uuid gthr)
+                     gthr
+                     w-uuid)
+            (delete-file file)))
+;=> (T eea1105e-3681-5117-99b6-7b2b5fe1f3c7 eea1105e-3681-5117-99b6-7b2b5fe1f3c7)
+
+Read a UUID byte-array to file with ```UUID-SERIALIZE-BIT-VECTOR-BITS```:
+
+```Common Lisp
+UNICLY> (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
+                                   :name "bitstream-test"))
+               (v4     (uuid-get-namespace-bytes (make-v4-uuid)))
+               (v4-out (with-open-file (strm tmp
+                                             :direction :output
+                                             :if-does-not-exist :create
+                                             :if-exists :supersede
+                                             :element-type 'uuid-ub8)
+                         (uuid-serialize-byte-array-bytes v4 strm)))
+               (v4-in   (with-open-file (in-strm tmp
+                                                 :direction :input
+                                                 :if-does-not-exist :error
+                                                 :element-type 'uuid-ub8)
+                          (uuid-deserialize-byte-array-bytes in-strm))))
+          (progn (delete-file tmp)
+                 (values (equalp v4-in v4-out)
+                         v4-in)))
+;=> T
+;   #(79 53 137 227 91 111 66 133 148 52 126 41 125 175 137 144)
+```
+
+```
+
+Write a UUID bit-vector to file with ```UUID-SERIALIZE-BIT-VECTOR-BITS```:
+
+```Common Lisp
+UNICLY> (let* ((file (make-pathname :directory '(:absolute "tmp")
+                                    :name "temp-bytes"))
+               (w-uuid    (make-v5-uuid *uuid-namespace-dns* "bubba"))
+               (w-uuid-ba (uuid-to-bit-vector w-uuid)))
+          (unwind-protect
+               (progn
+                 (with-open-file (s file
+                                    :direction :output
+                                    :if-exists :supersede
+                                    :if-does-not-exist :create
+                                    :element-type 'uuid-ub8)
+                   (uuid-serialize-bit-vector-bits w-uuid-ba s))
+                 ;; read the bit-vector back in
+                 (with-open-file (s file
+                                    :direction :input
+                                    :if-does-not-exist :error
+                                    :element-type 'uuid-ub8)
+                   (let ((ba-read (uuid-deserialize-bit-vector-bits s)))
+                     (values (equalp ba-read w-uuid-ba)
+                             ba-read
+                             w-uuid))))
+            (delete-file file)))
+;=> T
+   #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
+   eea1105e-3681-5117-99b6-7b2b5fe1f3c7
+```
+Read a UUID bit-vector from a stream  with ```UUID-DESERIALIZE-BIT-VECTOR-BITS```:
+
+Note, unlike ```UUID-READ-BIT-VECTOR-BITS```, is not wrapped in a ```CL:WITH-OPEN-FILE``` form.
+
+```Common Lisp
+UNICLY> (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
+                                   :name "bitstream-test"))
+               (v4     (uuid-to-bit-vector (make-v4-uuid)))
+               (v4-out (with-open-file (strm tmp
+                                             :direction :output
+                                             :if-does-not-exist :create
+                                             :if-exists :supersede
+                                             :element-type 'uuid-ub8)
+                         (uuid-serialize-bit-vector-bits v4 strm)))
+               (v4-in   (with-open-file (in-strm tmp
+                                                 :direction :input
+                                                 :if-does-not-exist :error
+                                                 :element-type 'uuid-ub8)
+                          (uuid-deserialize-bit-vector-bits in-strm))))
+          (progn (delete-file tmp)
+                 (values (uuid-bit-vector-eql v4-in v4-out)
+                         v4-in)))
+;=> T
+;   #*00101101001110100100001110101011000000101110010001000001101011101000010001100010101100011111101000001101100110110010111000001011
+```
+
+Read a UUID bit-vector from a file with ```UUID-READ-BIT-VECTOR-BITS```:
+
+```Common Lisp       
+UNICLY> (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
+                                   :name "bitstream-test"))
+               (v4     (uuid-to-bit-vector (make-v4-uuid)))
+               (v4-out (with-open-file (strm tmp
+                                             :direction :output
+                                             :if-does-not-exist :create
+                                             :if-exists :supersede
+                                             :element-type 'uuid-ub8
+                                             :external-format   :UTF-8)
+                         (uuid-serialize-bit-vector-bits v4 strm)))
+               (v4-in  (uuid-read-bit-vector-bits *tt--temp-path*)))
+          (prog1 (uuid-bit-vector-eql v4-in v4-out)
+            (delete-file tmp)))
+;=> T
+```
+
 ## Unicly's UUID Equality Interface:
 
 Following examples illustrate some more of the Unicly interface.

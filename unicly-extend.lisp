@@ -31,7 +31,7 @@
 ;; (defpackage #:tt-uuid-extended (:use #:common-lisp #:unicly))
 ;;
 ;; (defclass indexable-uuid (unicly:unique-universal-identifier)
-;;  ((bit-vector 
+;;  ((bit-vector
 ;;    :reader bit-vector-of-uuid)
 ;;   (integer-128
 ;;    :reader integer-128-of-uuid)))
@@ -69,13 +69,13 @@
 ;; (make-v4-uuid-indexed)
 ;; => 0c813195-5c4d-40a4-acc1-994c26d773b3
 ;;
-;; (make-uuid-from-bit-vector-indexed 
-;;  (unicly:uuid-to-bit-vector 
+;; (make-uuid-from-bit-vector-indexed
+;;  (unicly:uuid-to-bit-vector
 ;;   (make-v5-uuid-indexed unicly:*uuid-namespace-dns* "bubba")))
 ;; => eea1105e-3681-5117-99b6-7b2b5fe1f3c7
 ;;
-;; (make-uuid-from-byte-array-indexed 
-;;  (unicly::uuid-to-byte-array 
+;; (make-uuid-from-byte-array-indexed
+;;  (unicly::uuid-to-byte-array
 ;;   (make-v3-uuid-indexed unicly:*uuid-namespace-dns* "bubba")))
 ;; => 5e320838-7157-3039-8383-652d96705a7d
 ;;
@@ -91,14 +91,14 @@
 ;; (null (ignore-errors (make-v5-uuid-indexed (make-instance 'indexable-uuid) "bubba")))
 ;; => T
 ;;
-;; (let ((unicly::*uuid-allow-empty-string-name-args* t) 
+;; (let ((unicly::*uuid-allow-empty-string-name-args* t)
 ;;       (unicly::*uuid-allow-null-like-namespace-args* t))
 ;;   (make-v5-uuid-indexed (make-instance 'indexable-uuid) "bubba"))
 ;; => ca773f8d-32a5-51fa-915e-1600b9c37958
 ;;
 ;;; ==============================
 ;;
-;; :TODO macros for 
+;; :TODO macros for
 ;; `uuid-copy-uuid' as `def-make-uuid-copy-uuid-extended'
 ;;
 ;;; ==============================
@@ -120,10 +120,10 @@
 
 (defun %verify-valid-uuid-subclass-slots (class-to-verify)
   (let ((obj (make-instance class-to-verify)))
-    (loop for slot in (list 
+    (loop for slot in (list
                        '%uuid_time-low
                        '%uuid_time-mid
-                       '%uuid_time-high-and-version 
+                       '%uuid_time-high-and-version
                        '%uuid_clock-seq-and-reserved
                        '%uuid_clock-seq-low
                        '%uuid_node)
@@ -149,7 +149,7 @@
            (inline uuid-string-36-check-type)
            (optimize (speed 3)))
   (when (uuid-string-36-check-type maybe-valid-uuid-hex-string-36)
-    (locally 
+    (locally
         (declare (type uuid-string-36 maybe-valid-uuid-hex-string-36))
       (if (string= maybe-valid-uuid-hex-string-36 +uuid-null-string+)
           (error "Arg MAYBE-VALID-UUID-HEX-STRING-36 must not be `cl:string=' the constant `unicly::+uuid-null-string+'")
@@ -161,7 +161,7 @@
                    %uuid-byte-array-null-p)
            (optimize (speed 3)))
   (when (uuid-byte-array-16-check-type maybe-valid-uuid-byte-array)
-    (locally 
+    (locally
         (declare (type uuid-byte-array-16 maybe-valid-uuid-byte-array))
       (if (%uuid-byte-array-null-p maybe-valid-uuid-byte-array)
           (error "Arg MAYBE-VALID-UUID-BYTE-ARRAY must be an array of type `unicly:uuid-byte-array-16' without all octets `cl:zerop'")
@@ -173,7 +173,7 @@
                    uuid-bit-vector-128-check-type)
            (optimize (speed 3)))
   (if (uuid-bit-vector-128-check-type  maybe-valid-uuid-bit-vector)
-      (locally 
+      (locally
           (declare (type uuid-bit-vector-128 maybe-valid-uuid-bit-vector))
         (if (uuid-bit-vector-null-p maybe-valid-uuid-bit-vector)
             (error "Arg must _not_ satisfy `unicly::uuid-bit-vector-null-p'")
@@ -184,7 +184,7 @@
   ;; (macroexpand-1 '(unicly::def-make-v5-uuid-extended indexable indexable-uuid t))
   (declare (type boolean no-verify))
   (unless no-verify (%verify-valid-subclass-and-slots v5-uuid-class))
-  (let ((v5-fun-name 
+  (let ((v5-fun-name
          (intern (format nil "MAKE-V5-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v5-uuid-suffix))))))
     `(defun ,v5-fun-name (namespace name)
@@ -200,7 +200,7 @@
   ;; (macroexpand-1 '(def-make-v3-uuid-extended indexed indexable-uuid t))
   (declare (type boolean no-verify))
   (unless no-verify (%verify-valid-subclass-and-slots v3-uuid-class))
-  (let ((v3-fun-name 
+  (let ((v3-fun-name
          (intern (format nil "MAKE-V3-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v3-uuid-suffix))))))
     `(defun ,v3-fun-name (namespace name)
@@ -216,7 +216,7 @@
   ;; (macroexpand-1 '(def-make-v4-uuid-extended indexed indexable-uuid t))
   (declare (type boolean no-verify))
   (unless no-verify (%verify-valid-subclass-and-slots v4-uuid-class))
-  (let ((v4-fun-name 
+  (let ((v4-fun-name
          (intern (format nil "MAKE-V4-UUID-~A"
                          (string-trim '(#\SPACE #\- #\:) (string-upcase make-v4-uuid-suffix))))))
     `(defun ,v4-fun-name ()
@@ -237,15 +237,15 @@
                 (inline unicly::%make-uuid-from-string-extended-null-string-error)
                 (optimize (speed 3)))
        (when (unicly::%make-uuid-from-string-extended-null-string-error uuid-hex-string-36)
-         (locally 
+         (locally
              (declare (type unicly::uuid-string-36 uuid-hex-string-36))
            (let ((change-obj (unicly::make-uuid-from-string uuid-hex-string-36)))
              (declare (type unicly::unique-universal-identifier change-obj))
              (change-class change-obj ',extended-class)))))))
 
 (defmacro def-make-uuid-byte-array-extended (make-extended-suffix extended-class &optional (no-verify nil))
-  ;; (macroexpand-1 '(def-make-uuid-byte-array-extended indexed indexable-uuid)) 
-  ;; (macroexpand-1 '(def-make-uuid-byte-array-extended indexed indexable-uuid t)) 
+  ;; (macroexpand-1 '(def-make-uuid-byte-array-extended indexed indexable-uuid))
+  ;; (macroexpand-1 '(def-make-uuid-byte-array-extended indexed indexable-uuid t))
   (declare (type boolean no-verify))
   (unless no-verify (%verify-valid-subclass-and-slots extended-class))
   (let ((uuid-from-ba-fun
@@ -256,7 +256,7 @@
                 (inline unicly::%make-uuid-from-byte-array-extended-null-array-error)
                 (optimize (speed 3)))
        (when (unicly::%make-uuid-from-byte-array-extended-null-array-error uuid-byte-array-16)
-         (locally 
+         (locally
              (declare (type unicly::uuid-byte-array-16 uuid-byte-array-16))
            (let ((change-obj (unicly::uuid-from-byte-array uuid-byte-array-16)))
              (declare (type unicly::unique-universal-identifier change-obj))

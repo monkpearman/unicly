@@ -1464,8 +1464,10 @@ Signal an error if STREAM is not true for either `uuid-valid-stream-p' or `cl:in
 `uuid-valid-stream-verify-for-output'.~%")
 
 (fundoc 'uuid-serialize-byte-array-bytes
-"Serialize UUID to STREAM.~%~@
-Bytes of UUID are written to STREAM.~%~@
+"Serialize UUID-OR-BYTE-ARRAY-16 to STREAM.~%~@
+Bytes of UUID-OR-BYTE-ARRAY-16 are written to STREAM.~%~@
+UUID-OR-BYTE-ARRAY-16 is a UUID bit-vector or a UNIQUE-UNIVERSAL-IDENTIFIER object, and
+should satisfy either `uuid-byte-array-16-p', or `unique-universal-identifier-p'.~%
 Stream should have an :element-type '\(unsigned-byte 8\).~%~@
 :EXAMPLE~%
  \(let \(\(file \(make-pathname :directory '\(:absolute \"tmp\"\)
@@ -1478,6 +1480,7 @@ Stream should have an :element-type '\(unsigned-byte 8\).~%~@
                       :direction :output
                       :element-type 'uuid-ub8)
      \(uuid-serialize-byte-array-bytes  w-uuid s\)\)
+     ;; read the byte-array back in
    \(with-open-file \(stream file :element-type 'uuid-ub8\)
      \(do \(\(code \(read-byte stream nil :eof\) \(read-byte stream nil :eof\)\)\)
          \(\(eql code :eof\)\)
@@ -1491,7 +1494,116 @@ Stream should have an :element-type '\(unsigned-byte 8\).~%~@
               gthr
               w-uuid\)
      \(delete-file file\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%")
+:SEE-ALSO `uuid-deserialize-byte-array-bytes', `uuid-serialize-bit-vector-bits',
+`uuid-deserialize-bit-vector-bits',`uuid-read-bit-vector-bits'.~%")
+
+(fundoc 'uuid-deserialize-byte-array-bytes
+"Read a UUID's byte-array representation from STREAM-IN.
+STREAM-IN is a stream suitable for reading the bits of a UUID bit-vector.
+It should be of type `uuid-ub8' or a subtype and should satisfy
+`uuid-valid-stream-verify-octet-stream-for-input', an error is signaled if not.~%
+:EXAMPLE~%
+\(let* \(\(tmp \(make-pathname :directory '\(:absolute  \"tmp\"\)
+                           :name \"bitstream-test\"\)\)
+       \(v4     \(uuid-get-namespace-bytes \(make-v4-uuid\)\)\)
+       \(v4-out \(with-open-file \(strm tmp
+                                     :direction :output
+                                     :if-does-not-exist :create
+                                     :if-exists :supersede
+                                     :element-type 'uuid-ub8\)
+                 \(uuid-serialize-byte-array-bytes v4 strm\)\)\)
+       \(v4-in   \(with-open-file \(in-strm tmp
+                                         :direction :input
+                                         :if-does-not-exist :error
+                                         :element-type 'uuid-ub8\)
+                  \(uuid-deserialize-byte-array-bytes in-strm\)\)\)\)
+  \(progn \(delete-file tmp\)
+                 \(values \(equalp v4-in v4-out\)
+                         v4-in\)\)\)~%
+:SEE-ALSO `uuid-serialize-byte-array-bytes', `uuid-serialize-bit-vector-bits',
+`uuid-deserialize-bit-vector-bits', `uuid-read-bit-vector-bits'.~%")
+
+(fundoc 'uuid-serialize-bit-vector-bits
+        "Serialize BV-OR-UUID to STREAM.~%~@
+Bits of BV-OR-UUID are written to STREAM.~%~@
+BV-OR-UUID is a UUID bit-vector or a UNIQUE-UNIVERSAL-IDENTIFIER object, and
+should satisfy either `uuid-bit-vector-128-p', or `unique-universal-identifier-p'.~%
+Stream should have an :element-type '\(unsigned-byte 8\).~%~@
+:EXAMPLE~%
+\(let* \(\(file \(make-pathname :directory '\(:absolute \"tmp\"\)
+                            :name \"temp-bytes\"\)\)
+       \(w-uuid    \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)
+       \(w-uuid-ba \(uuid-to-bit-vector w-uuid\)\)\)
+  \(unwind-protect
+       \(progn
+         \(with-open-file \(s file
+                            :direction :output
+                            :if-exists :supersede
+                            :if-does-not-exist :create
+                            :element-type 'uuid-ub8\)
+           \(uuid-serialize-bit-vector-bits w-uuid-ba s\)\)
+         ;; read the bit-vector back in
+         \(with-open-file \(s file
+                            :direction :input
+                            :if-does-not-exist :error
+                            :element-type 'uuid-ub8\)
+           \(let \(\(ba-read \(uuid-deserialize-bit-vector-bits s\)\)\)
+             \(values \(equalp ba-read w-uuid-ba\)
+                     ba-read
+                     w-uuid\)\)\)\)
+    \(delete-file file\)\)\)~%
+:SEE-ALSO `uuid-deserialize-bit-vector-bits', `uuid-serialize-byte-array-bytes',
+`uuid-deserialize-byte-array-bytes', `uuid-read-bit-vector-bits'.~%")
+
+(fundoc 'uuid-deserialize-bit-vector-bits
+"Read the bits of a UUID's bit-vector representation from STREAM-IN.
+STREAM-IN is a stream suitable for reading the bits of a UUID bit-vector.
+It should be of type `uuid-ub8' or a subtype and should satisfy
+`uuid-valid-stream-verify-octet-stream-for-input', an error is signaled if not.~%
+:NOTE Unlike `uuid-read-bit-vector-bits', is not wrapped in a `cl:with-open-file' form.~%
+:EXAMPLE~%
+\(let* \(\(tmp \(make-pathname :directory '\(:absolute  \"tmp\"\)
+                           :name \"bitstream-test\"\)\)
+           \(v4     \(uuid-to-bit-vector \(make-v4-uuid\)\)\)
+           \(v4-out \(with-open-file \(strm tmp
+                                         :direction :output
+                                         :if-does-not-exist :create
+                                         :if-exists :supersede
+                                         :element-type 'uuid-ub8\)
+                     \(uuid-serialize-bit-vector-bits v4 strm\)\)\)
+           \(v4-in   \(with-open-file \(in-strm tmp
+                                             :direction :input
+                                             :if-does-not-exist :error
+                                             :element-type 'uuid-ub8\)
+                      \(uuid-deserialize-bit-vector-bits in-strm\)\)\)\)
+      \(progn \(delete-file tmp\)
+             \(values \(uuid-bit-vector-eql v4-in v4-out\)
+                     v4-in\)\)\)~%
+:SEE-ALSO `uuid-serialize-byte-array-bytes',
+`uuid-deserialize-byte-array-bytes', `uuid-read-bit-vector-bits'.~%")
+
+(fundoc 'uuid-read-bit-vector-bits
+"Read the bits of a UUID's bit-vector representation from INPUT-PATHNAME return
+an object of type `uuid-bit-vector-128'.~%
+INPUT-PATHNAME names an existing file with element-type `uuid-ub8'.~%
+:NOTE Like `uuid-deserialize-bit-vector-bits', but wraps the read of
+INPUT-PATHNAME inside `cl:with-open-file'.~%
+:EXAMPLE~%~@
+ \(let* \(\(tmp \(make-pathname :directory '\(:absolute  \"tmp\"\)
+                           :name \"bitstream-test\"\)\)
+       \(v4     \(uuid-to-bit-vector \(make-v4-uuid\)\)\)
+       \(v4-out \(with-open-file \(strm tmp
+                                      :direction :output
+                                      :if-does-not-exist :create
+                                      :if-exists :supersede
+                                      :element-type 'uuid-ub8
+                                      :external-format   :UTF-8\)
+                  \(uuid-serialize-bit-vector-bits v4 strm\)\)\)
+       \(v4-in  \(uuid-read-bit-vector-bits *tt--temp-path*\)\)\)
+  \(prog1 \(uuid-bit-vector-eql v4-in v4-out\)
+    \(delete-file tmp\)\)\)~%
+:SEE-ALSO :SEE-ALSO `uuid-deserialize-bit-vector-bits', `uuid-serialize-byte-array-bytes',
+`uuid-deserialize-byte-array-bytes'.~%")
 
 (fundoc 'uuid-byte-array-16-to-integer
         "Convert a UUID byte-array representaton to its decimal integer representaton.
@@ -1507,7 +1619,7 @@ Return value is an integer with an upper-bounds of a `uuid-ub128'.~%~@
  \(uuid-byte-array-16-to-integer
   \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)\)
   ;=> 317192554773903544674993329975922389959~%~@
-:SEE-ALSO `<XREF>'.~%")
+:SEE-ALSO `uuid-integer-128-to-bit-vector'.~%")
 
 (fundoc 'uuid-integer-128-to-bit-vector
 "Convert the decimal integer representation of a UUID to a `uuid-bit-vector-128'.~%~@
@@ -1516,7 +1628,7 @@ Return value is an integer with an upper-bounds of a `uuid-ub128'.~%~@
                      \(uuid-to-bit-vector \(make-v5-uuid *uuid-namespace-dns* \"bubba\"\)\)\)
 \(uuid-bit-vector-eql \(uuid-integer-128-to-bit-vector 317192554773903544674993329975922389959\)~%
                      \(uuid-byte-array-to-bit-vector \(uuid-integer-128-to-byte-array 317192554773903544674993329975922389959\)\)\)~%~@
-:SEE-ALSO `<XREF>'.~%")
+:SEE-ALSO `uuid-byte-array-16-to-integer'.~%")
 
 (fundoc 'verify-sane-namespace-and-name
 "Return as if by cl:values the uuid-byte-array representations of NAMESPACE and NAME.~%~@
@@ -1958,17 +2070,6 @@ Used for the generation of UUIDv3 and UUIDv5 UUID by `make-v5-uuid' and `make-v3
 :SEE-ALSO `<XREF>'.~%")
 
 
-(fundoc 'uuid-read-bit-vector-bits
-"Read the bits of a UUID's bit-vector representation from INPUT-PATHNAME return
-an object of type `uuid-bit-vector-128'.~%
-INPUT-PATHNAME names an existing file with element-type `uuid-ub8'.~%
-:EXAMPLE~%~@
- \(let* \(\(tmp \(make-pathname :directory '\(:absolute  \"tmp\"\)
-                            :name \"bitstream-test\"\)\)
-        \(v4     \(uuid-to-bit-vector \(make-v4-uuid\)\)\)
-        \(v4-io  \(uuid-read-bit-vector-bits \(uuid-write-bit-vector-bits v4 tmp\)\)\)\)
-   \(uuid-bit-vector-eql v4 v4-io\)\)~%
-:SEE-ALSO `<XREF>'.~%")
 
 ;;; ==============================
 
