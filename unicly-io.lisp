@@ -189,9 +189,6 @@
     (uuid-deserialize-bit-vector-bits bv-in)))
 
 
-
-
-
 ;;; ==============================
 
 

@@ -290,7 +290,7 @@ use other intermediary representations of your UUIDs. Unicly provides interfaces
 for reading, writing, and converting UUIDs across various representations
 including bit-vectors, byte-arrays, 128-bit integers, strings, etc.
 
-Write a UUID byte-array to file with ```UUID-SERIALIZE-BYTE-ARRAY-BYTES```:
+### Write a UUID byte-array to file with ```UUID-SERIALIZE-BYTE-ARRAY-BYTES```:
 
 ```Common Lisp
 UNICLY> (let ((file (make-pathname :directory '(:absolute "tmp")
@@ -319,7 +319,7 @@ UNICLY> (let ((file (make-pathname :directory '(:absolute "tmp")
             (delete-file file)))
 ;=> (T eea1105e-3681-5117-99b6-7b2b5fe1f3c7 eea1105e-3681-5117-99b6-7b2b5fe1f3c7)
 
-Read a UUID byte-array to file with ```UUID-SERIALIZE-BIT-VECTOR-BITS```:
+### Read a UUID byte-array to file with ```UUID-SERIALIZE-BIT-VECTOR-BITS```:
 
 ```Common Lisp
 UNICLY> (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
@@ -343,9 +343,7 @@ UNICLY> (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
 ;   #(79 53 137 227 91 111 66 133 148 52 126 41 125 175 137 144)
 ```
 
-```
-
-Write a UUID bit-vector to file with ```UUID-SERIALIZE-BIT-VECTOR-BITS```:
+### Write a UUID bit-vector to file with ```UUID-SERIALIZE-BIT-VECTOR-BITS```:
 
 ```Common Lisp
 UNICLY> (let* ((file (make-pathname :directory '(:absolute "tmp")
@@ -374,7 +372,7 @@ UNICLY> (let* ((file (make-pathname :directory '(:absolute "tmp")
    #*11101110101000010001000001011110001101101000000101010001000101111001100110110110011110110010101101011111111000011111001111000111
    eea1105e-3681-5117-99b6-7b2b5fe1f3c7
 ```
-Read a UUID bit-vector from a stream  with ```UUID-DESERIALIZE-BIT-VECTOR-BITS```:
+### Read a UUID bit-vector from a stream  with ```UUID-DESERIALIZE-BIT-VECTOR-BITS```:
 
 Note, unlike ```UUID-READ-BIT-VECTOR-BITS```, is not wrapped in a ```CL:WITH-OPEN-FILE``` form.
 
@@ -399,8 +397,7 @@ UNICLY> (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
 ;=> T
 ;   #*00101101001110100100001110101011000000101110010001000001101011101000010001100010101100011111101000001101100110110010111000001011
 ```
-
-Read a UUID bit-vector from a file with ```UUID-READ-BIT-VECTOR-BITS```:
+### Read a UUID bit-vector from a file with ```UUID-READ-BIT-VECTOR-BITS```:
 
 ```Common Lisp       
 UNICLY> (let* ((tmp (make-pathname :directory '(:absolute  "tmp")
