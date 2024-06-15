@@ -30,7 +30,7 @@
 
 ;; (makunbound '+timing-size+)
 (defconstant +timing-size+
-  #+(or sbcl T) #x186A0 ; 100k
+  #+(or sbcl T) #xF4240 ;1mil ; #x186A0 ; 100k
   #+:CLISP #x2710     ; 10k
   )
 
@@ -116,14 +116,9 @@
         for x = (schar ascii-chars (random 52)) collect x into rand
         finally (return (make-array (length rand) :element-type 'character :initial-contents rand)))))
 
-<<<<<<< HEAD
 ;; (make-random-string-timing-array :return-array t)
 ;; (make-random-string-timing-array :return-array nil)
 (defun make-random-string-timing-array (&key (return-array nil))
-=======
-;; (make-random-string-timing-array)
-(defun make-random-string-timing-array ()
->>>>>>> c86ad4a2e5ffbbda1a7cf578bc1a28b07b0d02dd
   (setf *timing-random-array* 
         (make-array +timing-size+
                     :adjustable nil
@@ -131,16 +126,10 @@
   (loop 
    for x from 0 below +timing-size+
    do (setf (aref *timing-random-array* x) (make-random-string 36))
-<<<<<<< HEAD
    finally (return (if return-array 
                        (values *timing-random-array* (array-dimensions *timing-random-array*))
                        (values nil (array-dimensions *timing-random-array*))))))
                        
-;; (array-dimensions *timing-random-array*)
-=======
-   finally (return *timing-random-array*)))
->>>>>>> c86ad4a2e5ffbbda1a7cf578bc1a28b07b0d02dd
-
 (defun generic-gc ()
    #+sbcl (sb-ext:gc :full t)
    #+clisp (ext:gc))
@@ -168,7 +157,6 @@ Strings generated as if by `make-random-char-array' ~%~@
 :EXAMPLE~%
  \(loop repeat 3 collect \(make-random-string\)\)~%~@
 :SEE-ALSO `make-random-string-timing-array', `make-random-inverted-number-array'.~%")
-<<<<<<< HEAD
 
 (unicly::fundoc 'make-random-string-timing-array
 "Populate contents of variable `*timing-random-array*' with `+timing-size+'
@@ -182,8 +170,6 @@ When keyword RETURN-ARRAY is non-nil return as if by `cl:values', the array valu
  \(aref *timing-random-array* \(random +timing-size+\)\)~%
 :SEE-ALSO `make-random-inverted-number-array'.~%")
 
-=======
-
 (unicly::fundoc 'make-random-string-timing-array
 "Populate contents of variable `*timing-random-array*' with `+timing-size+'
 number of random strings generated as if by `make-random-string'.~%
@@ -192,7 +178,6 @@ number of random strings generated as if by `make-random-string'.~%
  \(aref *timing-random-array* \(random +timing-size+\)\)~%
 :SEE-ALSO `make-random-inverted-number-array'.~%")
 
->>>>>>> c86ad4a2e5ffbbda1a7cf578bc1a28b07b0d02dd
 (unicly::fundoc 'make-random-inverted-number-array
          "Return array of 320 randomly selected integers with a distribution inverted
 over the byte size of the most-significant number in the following set:~%~@
@@ -217,6 +202,8 @@ Return value is shuffled as if by `nshuffle-vector'.~%~@
 ;;; :UNICLY-TIMINGS
 ;;; ==============================
 
+;; 
+ 
 ;; Uncomment the section below to run the timings code following this block:
 
 #|
@@ -235,7 +222,24 @@ Return value is shuffled as if by `nshuffle-vector'.~%~@
     for x across *timing-random-array*
     do (unicly::make-v5-uuid unicly::*uuid-namespace-dns* x)))
 
+;; compare with UUID
+
 (generic-gc)
+(time
+ (loop 
+    for x across *timing-random-array*
+    do (uuid:make-v5-uuid  uuid:+namespace-dns+ x)))
+
+
+(generic-gc)
+(progn 
+  (loop for x from 0 below +timing-size+
+     do (setf (aref *timing-random-array* x) 
+              (unicly::uuid-to-bit-vector (unicly::make-v5-uuid unicly::*uuid-namespace-dns* (make-random-string 36)))))
+  (aref *timing-random-array* 
+        (1- +timing-size+)))
+
+
 (progn 
   (loop for x from 0 below +timing-size+
      do (setf (aref *timing-random-array* x) 

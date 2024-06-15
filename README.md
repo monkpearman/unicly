@@ -1031,7 +1031,8 @@ Some notable differences between Unicly and Tzonev's ```UUID``` library:
 
 *  Unicly is developed primarily for speedy minting of v3 and v5 UUIDs.
    On an x86-32 SBCL we have found Unicly's minting of v3 and v5 UUIDs to be
-   significantly faster (at least 3-5x) than equivalent code from uuid.
+   significantly faster (at least 3-5x) than equivalent code from UUID.
+   On 64bit ARM architecture the timing differences aren't as significant.
    :SEE [unicly/unicly-timings.lisp](https://github.com/monkpearman/unicly/blob/master/unicly-timings.lisp) for some timing comparisons.
    
    * Unicly is not particlulary faster than uuid when minting v4 UUIDS. 
@@ -1042,7 +1043,7 @@ Some notable differences between Unicly and Tzonev's ```UUID``` library:
    timings of ```UNICLY:MAKE-V5-UUID``` with ```UUID:MAKE-V5-UUID```. 
 
    Following timings were made using functionally identical namespaces for 1mil
-   invocations on an x86-32 SBCL.
+   invocations on an 64bit ARM SBCL.
 
    Name components were taken from an array of 1mil elements where each element was
    a randomly generated string and where each string was between 1-36 characters long
@@ -1051,17 +1052,35 @@ Some notable differences between Unicly and Tzonev's ```UUID``` library:
 
 ```Common Lisp
     (unicly:make-v5-uuid <NAMESPACE> <RANDOM-NAME>)
-    (uuid:make-v5-uuid <NAMESPACE> <RANDOM-NAME>)
+    (uuid:make-v5-uuid   <NAMESPACE> <RANDOM-NAME>)
 
-    unicly:make-v5-uuid 
-     18.251 seconds of real time
-     54,614,814,653 processor cycles
-     961,242,536 bytes consed
-   
-   uuid:make-v5-uuid
-     57.404 seconds of real time
-     171,781,583,768 processor cycles
-     5,356,186,536 bytes consed
+UNICLY-TIMINGS> (generic-gc)
+(time
+ (loop 
+    for x across *timing-random-array*
+    do (unicly::make-v5-uuid unicly::*uuid-namespace-dns* x)))
+Evaluation took:
+
+  3.258 seconds of real time
+  3.264746 seconds of total run time (3.222223 user, 0.042523 system)
+  [ Real times consist of 0.073 seconds GC time, and 3.185 seconds non-GC time. ]
+  [ Run times consist of 0.073 seconds GC time, and 3.192 seconds non-GC time. ]
+  100.21% CPU
+  1,583,015,056 bytes consed
+
+UNICLY-TIMINGS> (generic-gc)
+(time
+ (loop 
+    for x across *timing-random-array*
+    do (uuid:make-v5-uuid  uuid:+namespace-dns+ x)))
+
+Evaluation took:
+  3.465 seconds of real time
+  3.471200 seconds of total run time (3.449735 user, 0.021465 system)
+  [ Real times consist of 0.060 seconds GC time, and 3.405 seconds non-GC time. ]
+  [ Run times consist of 0.060 seconds GC time, and 3.412 seconds non-GC time. ]
+  100.17% CPU
+  1,359,595,008 bytes consed
 ```
    
    The above ratios are similar for the equivalent ```MAKE-V3-UUID``` functions.
