@@ -318,7 +318,7 @@ UNICLY> (let ((file (make-pathname :directory '(:absolute "tmp")
                      w-uuid)
             (delete-file file)))
 ;=> (T eea1105e-3681-5117-99b6-7b2b5fe1f3c7 eea1105e-3681-5117-99b6-7b2b5fe1f3c7)
-
+```
 ### Read a UUID byte-array to file with ```UUID-SERIALIZE-BIT-VECTOR-BITS```:
 
 ```Common Lisp
