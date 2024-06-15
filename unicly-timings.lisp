@@ -232,6 +232,20 @@ Return value is shuffled as if by `nshuffle-vector'.~%~@
 
 
 (generic-gc)
+(time
+ (loop 
+    for x across *timing-random-array*
+    do (unicly:uuid-get-namespace-bytes (unicly::make-v5-uuid unicly::*uuid-namespace-dns* x))))
+
+
+(generic-gc)
+(time
+ (loop 
+    for x across *timing-random-array*
+    do (uuid:uuid-to-byte-array (uuid:make-v5-uuid  uuid:+namespace-dns+ x))))
+
+;;; 
+(generic-gc)
 (progn 
   (loop for x from 0 below +timing-size+
      do (setf (aref *timing-random-array* x) 
